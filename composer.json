@@ -29,13 +29,19 @@
   "require": {
     "php": "^5.5 || ^7.0",
     "prooph/common": "^3.3",
-    "psr/http-message": "^1.0"
+    "prooph/service-bus" : "^5.0",
+    "psr/http-message": "^1.0",
+    "react/promise" : "^2.2"
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8 || ^5.0",
-    "fabpot/php-cs-fixer": "^1.11"
+    "fabpot/php-cs-fixer": "^1.11",
+    "container-interop/container-interop" : "^1.1",
+    "sandrokeil/interop-config": "^0.3.1"
   },
   "suggest": {
+    "container-interop/container-interop": "For usage of provided factories",
+    "sandrokeil/interop-config": "For usage of provided factories"
   },
   "autoload": {
     "psr-4": {
