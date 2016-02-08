@@ -14,6 +14,10 @@
       "name": "Sandro Keil",
       "email": "contact@prooph.de",
       "homepage": "http://prooph-software.com/"
+    },
+    {
+      "name": "Sascha-Oliver Prolic",
+      "email": "saschaprolic@googlemail.com"
     }
   ],
   "keywords": [
@@ -37,7 +41,8 @@
     "phpunit/phpunit": "^4.8 || ^5.0",
     "fabpot/php-cs-fixer": "^1.11",
     "container-interop/container-interop" : "^1.1",
-    "sandrokeil/interop-config": "^0.3.1"
+    "sandrokeil/interop-config": "^0.3.1",
+    "tobiju/bookdown-bootswatch-templates": "^0.3.0"
   },
   "suggest": {
     "container-interop/container-interop": "For usage of provided factories",
@@ -62,6 +67,7 @@
     "cs": "php-cs-fixer fix -v --diff --dry-run",
     "cs-fix": "php-cs-fixer fix -v --diff",
     "test": "phpunit",
-    "test-coverage": "phpunit --coverage-clover clover.xml"
+    "test-coverage": "phpunit --coverage-clover clover.xml",
+    "docs": "bookdown docs/bookdown.json"
   }
 }
