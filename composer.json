@@ -68,7 +68,7 @@
     "cs": "php-cs-fixer fix -v --diff --dry-run",
     "cs-fix": "php-cs-fixer fix -v --diff",
     "test": "phpunit",
-    "test-coverage": "phpunit --coverage-clover clover.xml",
+    "test-coverage": "phpunit --coverage-clover build/logs/clover.xml",
     "docs": "bookdown docs/bookdown.json"
   }
 }
