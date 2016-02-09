@@ -15,8 +15,12 @@ array.
 The `QueryMiddleware` dispatches the message data to the query bus system. This middleware needs an request attribute 
 (`$request->getAttribute(\Prooph\Psr7Middleware\QueryMiddleware::NAME_ATTRIBUTE)`) called `prooph_query_name`. 
 This name is used for the `\Prooph\Common\Messaging\MessageFactory` to create the `\Prooph\Common\Messaging\Message` 
-object. The data for the query is extracted from the body of the request (`$request->getParsedBody()`) and must be an 
+object. The data for the query is extracted from query params of the request (`$request->getQueryParams()`) and must be an 
 array.
+
+There is a special behaviour implemented. If you send a *POST* HTTP request, then the parsed body data (`$request->getParsedBody()`) 
+will be added to the payload under the key `data`. `data` is a reserved key if you use a *POST* HTTP request. However, it's
+not recommended to use a *POST* HTTP request here. Use it only if you know what you do.
 
 ## EventMiddleware
 The `EventMiddleware` dispatches the message data to the event bus system. This middleware needs an request attribute 

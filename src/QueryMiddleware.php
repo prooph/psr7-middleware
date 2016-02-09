@@ -83,12 +83,14 @@ final class QueryMiddleware implements Middleware
                 )
             );
         }
+        $payload = $request->getQueryParams();
+
+        if ($request->getMethod() === 'POST') {
+            $payload['data'] = $request->getParsedBody();
+        }
 
         try {
-            $query = $this->queryFactory->createMessageFromArray(
-                $queryName,
-                ['payload' => $request->getParsedBody()]
-            );
+            $query = $this->queryFactory->createMessageFromArray($queryName, ['payload' => $payload]);
 
             return $this->responseStrategy->fromPromise(
                 $this->queryBus->dispatch($query)

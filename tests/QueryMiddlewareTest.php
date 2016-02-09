@@ -78,7 +78,8 @@ class QueryMiddlewareTest extends TestCase
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getMethod()->shouldBeCalled();
+        $request->getQueryParams()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(QueryMiddleware::NAME_ATTRIBUTE)->willReturn($queryName)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
@@ -117,7 +118,49 @@ class QueryMiddlewareTest extends TestCase
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getMethod()->shouldBeCalled();
+        $request->getQueryParams()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute(QueryMiddleware::NAME_ATTRIBUTE)->willReturn($queryName)->shouldBeCalled();
+
+        $response = $this->prophesize(ResponseInterface::class);
+        $response->withStatus(Argument::type('integer'))->shouldNotBeCalled();
+
+        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal());
+        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+    }
+
+    /**
+     * @test
+     */
+    public function it_dispatches_the_query_with_post_data()
+    {
+        $queryName = 'stdClass';
+        $parsedBody = ['filter' => []];
+        $payload = ['user_id' => 123];
+
+        $queryBus = $this->prophesize(QueryBus::class);
+        $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
+            $this->prophesize(Promise::class)->reveal()
+        );
+
+        $message = $this->prophesize(Message::class);
+
+        $messageFactory = $this->prophesize(MessageFactory::class);
+        $messageFactory
+            ->createMessageFromArray(
+                $queryName,
+                ['payload' => array_merge($payload, ['data' => $parsedBody])]
+            )
+            ->willReturn($message->reveal())
+            ->shouldBeCalled();
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldBeCalled();
+
+        $request = $this->prophesize(ServerRequestInterface::class);
+        $request->getMethod()->willReturn('POST')->shouldBeCalled();
+        $request->getParsedBody()->willReturn($parsedBody)->shouldBeCalled();
+        $request->getQueryParams()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(QueryMiddleware::NAME_ATTRIBUTE)->willReturn($queryName)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
