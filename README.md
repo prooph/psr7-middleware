@@ -3,6 +3,10 @@ Consume prooph messages (commands, queries and events) with a PSR-7 middleware. 
 [service-bus component documentation](https://github.com/prooph/service-bus) to see how to configure the different bus
 types.
 
+[![Build Status](https://travis-ci.org/prooph/psr7-middleware.svg?branch=master)](https://travis-ci.org/prooph/psr7-middleware)
+[![Coverage Status](https://coveralls.io/repos/github/prooph/psr7-middleware/badge.svg?branch=master)](https://coveralls.io/github/prooph/psr7-middleware?branch=master)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/prooph/improoph)
+
 ## Middleware
 For every bus system a middleware exists and one Middleware to rule them all.
 
