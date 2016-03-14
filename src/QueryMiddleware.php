@@ -55,15 +55,28 @@ final class QueryMiddleware implements Middleware
     private $responseStrategy;
 
     /**
+     * Gatherer of metadata from the request object
+     *
+     * @var MetadataGatherer
+     */
+    private $metadataGatherer;
+
+    /**
      * @param QueryBus $queryBus Dispatches query
      * @param MessageFactory $queryFactory Creates message depending on query name
      * @param ResponseStrategy $responseStrategy
+     * @param MetadataGatherer $metadataGatherer
      */
-    public function __construct(QueryBus $queryBus, MessageFactory $queryFactory, ResponseStrategy $responseStrategy)
+    public function __construct(
+        QueryBus $queryBus,
+        MessageFactory $queryFactory,
+        ResponseStrategy $responseStrategy,
+        MetadataGatherer $metadataGatherer)
     {
         $this->queryBus = $queryBus;
         $this->queryFactory = $queryFactory;
         $this->responseStrategy = $responseStrategy;
+        $this->metadataGatherer = $metadataGatherer;
     }
 
     /**
@@ -90,7 +103,10 @@ final class QueryMiddleware implements Middleware
         }
 
         try {
-            $query = $this->queryFactory->createMessageFromArray($queryName, ['payload' => $payload]);
+            $query = $this->queryFactory->createMessageFromArray($queryName, [
+                'payload' => $payload,
+                'metadata' => $this->metadataGatherer->getFromRequest($request),
+            ]);
 
             return $this->responseStrategy->fromPromise(
                 $this->queryBus->dispatch($query)

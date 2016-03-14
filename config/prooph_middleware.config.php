@@ -16,6 +16,11 @@
  * (possibly merged into your application configuration)
  */
 return [
+    'dependencies' => [
+        'factories' => [
+            \Prooph\Psr7Middleware\MetadataGatherer::class => \Prooph\Psr7Middleware\Container\NoopMetadataGathererFactory::class
+        ],
+    ],
     //vendor key to avoid merge conflicts with other packages when merged into application config
     'prooph' => [
         //component key to avoid merge conflicts with other prooph components when merged into application config
@@ -28,7 +33,9 @@ return [
                 // container/service id / instance, see \Prooph\Common\Messaging\MessageFactory for more details
                 'message_factory' => 'custom_message_factory',
                 // container/service id for the QueryBus instance, default QueryBus::class
-                'query_bus' => 'custom_query_bus'
+                'query_bus' => 'custom_query_bus',
+                // container/service id for the MetadataFatherer instance, default NoopMetadataGatherer::class
+                'metadata_gatherer' => 'metadata_gatherer'
             ],
             //This section will be used by \Prooph\Psr7Middleware\Container\CommandMiddlewareFactory
             'command' => [
