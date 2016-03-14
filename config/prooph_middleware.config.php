@@ -17,6 +17,9 @@
  */
 return [
     'dependencies' => [
+        'aliases' => [
+            \Prooph\Psr7Middleware\NoopMetadataGatherer::class => \Prooph\Psr7Middleware\MetadataGatherer::class
+        ],
         'factories' => [
             \Prooph\Psr7Middleware\MetadataGatherer::class => \Zend\ServiceManager\Factory\InvokableFactory::class
         ],
