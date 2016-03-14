@@ -18,7 +18,7 @@
 return [
     'dependencies' => [
         'factories' => [
-            \Prooph\Psr7Middleware\MetadataGatherer::class => \Prooph\Psr7Middleware\Container\NoopMetadataGathererFactory::class
+            \Prooph\Psr7Middleware\MetadataGatherer::class => \Zend\ServiceManager\Factory\InvokableFactory::class
         ],
     ],
     //vendor key to avoid merge conflicts with other packages when merged into application config
