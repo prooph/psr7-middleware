@@ -65,14 +65,14 @@ final class QueryMiddleware implements Middleware
      * @param QueryBus $queryBus Dispatches query
      * @param MessageFactory $queryFactory Creates message depending on query name
      * @param ResponseStrategy $responseStrategy
-     * @param MetadataGatherer $metadataGatherer
+     * @param MetadataGatherer $metadataGatherer Gatherer of metadata
      */
     public function __construct(
         QueryBus $queryBus,
         MessageFactory $queryFactory,
         ResponseStrategy $responseStrategy,
-        MetadataGatherer $metadataGatherer)
-    {
+        MetadataGatherer $metadataGatherer
+    ) {
         $this->queryBus = $queryBus;
         $this->queryFactory = $queryFactory;
         $this->responseStrategy = $responseStrategy;
