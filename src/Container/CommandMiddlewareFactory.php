@@ -15,6 +15,7 @@ use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\CommandMiddleware;
+use Prooph\Psr7Middleware\MetadataGatherer;
 use Prooph\ServiceBus\CommandBus;
 
 final class CommandMiddlewareFactory implements RequiresContainerId, ProvidesDefaultOptions, RequiresMandatoryOptions
@@ -33,7 +34,8 @@ final class CommandMiddlewareFactory implements RequiresContainerId, ProvidesDef
 
         return new CommandMiddleware(
             $container->get($options['command_bus']),
-            $container->get($options['message_factory'])
+            $container->get($options['message_factory']),
+            $container->get($options['metadata_gatherer'])
         );
     }
 
@@ -66,7 +68,7 @@ final class CommandMiddlewareFactory implements RequiresContainerId, ProvidesDef
      */
     public function defaultOptions()
     {
-        return ['command_bus' => CommandBus::class];
+        return ['command_bus' => CommandBus::class, 'metadata_gatherer' => MetadataGatherer::class];
     }
 
     /**
@@ -74,6 +76,6 @@ final class CommandMiddlewareFactory implements RequiresContainerId, ProvidesDef
      */
     public function mandatoryOptions()
     {
-        return ['message_factory'];
+        return ['message_factory', 'metadata_gatherer'];
     }
 }
