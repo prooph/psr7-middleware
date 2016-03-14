@@ -77,6 +77,6 @@ final class QueryMiddlewareFactory implements RequiresContainerId, ProvidesDefau
      */
     public function mandatoryOptions()
     {
-        return ['message_factory', 'response_strategy'];
+        return ['message_factory', 'response_strategy', 'metadata_gatherer'];
     }
 }
