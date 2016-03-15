@@ -68,7 +68,7 @@ return [
     'prooph' => [
         'middleware' => [
             'query' => [
-                'metadata_gatherer' => \Prooph\Psr7Middleware\MetadataGatherer::class
+                'metadata_gatherer' => \My\Psr7Middleware\MyMetadataGatherer::class
             ],
         ],
     ],
