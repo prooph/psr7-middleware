@@ -29,7 +29,7 @@ return [
                 'message_factory' => 'custom_message_factory',
                 // container/service id for the QueryBus instance, default QueryBus::class
                 'query_bus' => 'custom_query_bus',
-                // container/service id for the MetadataFatherer instance, default NoopMetadataGatherer::class
+                // container/service id for the MetadataGatherer instance, default NoopMetadataGatherer::class
                 // 'metadata_gatherer' => \Prooph\Psr7Middleware\MetadataGatherer::class
             ],
             //This section will be used by \Prooph\Psr7Middleware\Container\CommandMiddlewareFactory

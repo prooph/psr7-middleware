@@ -29,7 +29,7 @@ return [
 
 ## Metadata Gatherer
 
-QueryMiddleware, CommandMiddleware and EventMiddleware have a MetadataGatherer injected that is capable of retrieving attributes derived from the ServerRequestInterface and pass those with the messages as metadata.
+QueryMiddleware, CommandMiddleware and EventMiddleware have a MetadataGatherer injected that is capable of retrieving attributes derived from the ServerRequestInterface and pass those with messages as metadata.
 
 By default a Noop (returns an empty array) instance is used, but it is very easy to change that.
 
@@ -56,14 +56,21 @@ final class MyMetadataGatherer implements MetadataGatherer
 
 ```
 
-Then overwrite the container dependancy;
+Then define it in container and prooph configuration;
 
-```
+```php
 return [
     'dependencies' => [
-    	'aliases' => [
-    		\My\Psr7Middleware\MyMetadataGatherer::class => \Prooph\Psr7Middleware\MetadataGatherer::class
-    	],
+    	'factories' => [
+    		\My\Psr7Middleware\MyMetadataGatherer::class => \Zend\ServiceManager\Factory\InvokableFactory::class
+        ],
+    ],
+    'prooph' => [
+        'middleware' => [
+            'query' => [
+                'metadata_gatherer' => \Prooph\Psr7Middleware\MetadataGatherer::class
+            ],
+        ],
     ],
     ...
 ```
