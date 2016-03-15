@@ -15,6 +15,7 @@ use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\MetadataGatherer;
+use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
 
@@ -32,11 +33,17 @@ final class QueryMiddlewareFactory implements RequiresContainerId, ProvidesDefau
     {
         $options = $this->options($container->get('config'));
 
+        if (isset($options['metadata_gatherer'])) {
+            $gatherer = $container->get($options['metadata_gatherer']);
+        } else {
+            $gatherer = new NoopMetadataGatherer();
+        }
+
         return new QueryMiddleware(
             $container->get($options['query_bus']),
             $container->get($options['message_factory']),
             $container->get($options['response_strategy']),
-            $container->get($options['metadata_gatherer'])
+            $gatherer
         );
     }
 
@@ -69,7 +76,7 @@ final class QueryMiddlewareFactory implements RequiresContainerId, ProvidesDefau
      */
     public function defaultOptions()
     {
-        return ['query_bus' => QueryBus::class, 'metadata_gatherer' => MetadataGatherer::class];
+        return ['query_bus' => QueryBus::class];
     }
 
     /**
@@ -77,6 +84,6 @@ final class QueryMiddlewareFactory implements RequiresContainerId, ProvidesDefau
      */
     public function mandatoryOptions()
     {
-        return ['message_factory', 'response_strategy', 'metadata_gatherer'];
+        return ['message_factory', 'response_strategy'];
     }
 }

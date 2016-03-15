@@ -16,14 +16,6 @@
  * (possibly merged into your application configuration)
  */
 return [
-    'dependencies' => [
-        'aliases' => [
-            \Prooph\Psr7Middleware\NoopMetadataGatherer::class => \Prooph\Psr7Middleware\MetadataGatherer::class
-        ],
-        'factories' => [
-            \Prooph\Psr7Middleware\MetadataGatherer::class => \Zend\ServiceManager\Factory\InvokableFactory::class
-        ],
-    ],
     //vendor key to avoid merge conflicts with other packages when merged into application config
     'prooph' => [
         //component key to avoid merge conflicts with other prooph components when merged into application config
@@ -38,7 +30,7 @@ return [
                 // container/service id for the QueryBus instance, default QueryBus::class
                 'query_bus' => 'custom_query_bus',
                 // container/service id for the MetadataFatherer instance, default NoopMetadataGatherer::class
-                'metadata_gatherer' => 'metadata_gatherer'
+                // 'metadata_gatherer' => \Prooph\Psr7Middleware\MetadataGatherer::class
             ],
             //This section will be used by \Prooph\Psr7Middleware\Container\CommandMiddlewareFactory
             'command' => [
