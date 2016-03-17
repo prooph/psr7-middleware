@@ -47,7 +47,7 @@ class QueryMiddlewareTest extends TestCase
         $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldNotBeCalled();
+        $gatherer->getFromRequest($request->reveal())->shouldNotBeCalled();
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
@@ -73,7 +73,7 @@ class QueryMiddlewareTest extends TestCase
         $messageFactory
             ->createMessageFromArray(
                 $queryName,
-                ['payload' => $payload]
+                ['payload' => $payload, 'metadata' => []]
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
@@ -90,7 +90,7 @@ class QueryMiddlewareTest extends TestCase
         $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldBeCalled();
+        $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
