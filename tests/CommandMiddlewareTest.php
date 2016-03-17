@@ -42,7 +42,7 @@ class CommandMiddlewareTest extends TestCase
         $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldBeCalled();
+        $gatherer->getFromRequest($request)->shouldNotBeCalled();
 
         $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
 

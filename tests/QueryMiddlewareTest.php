@@ -47,7 +47,7 @@ class QueryMiddlewareTest extends TestCase
         $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldBeCalled();
+        $gatherer->getFromRequest($request)->shouldNotBeCalled();
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
