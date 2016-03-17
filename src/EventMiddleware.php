@@ -45,13 +45,25 @@ final class EventMiddleware implements Middleware
     private $eventFactory;
 
     /**
+     * Gatherer of metadata from the request object
+     *
+     * @var MetadataGatherer
+     */
+    private $metadataGatherer;
+
+    /**
      * @param EventBus $eventBus Dispatches event
      * @param MessageFactory $eventFactory Creates message depending on event name
+     * @param MetadataGatherer $metadataGatherer Gatherer of metadata
      */
-    public function __construct(EventBus $eventBus, MessageFactory $eventFactory)
-    {
-        $this->eventBus = $eventBus;
-        $this->eventFactory = $eventFactory;
+    public function __construct(
+        EventBus $eventBus,
+        MessageFactory $eventFactory,
+        MetadataGatherer $metadataGatherer
+    ) {
+        $this->eventBus         = $eventBus;
+        $this->eventFactory     = $eventFactory;
+        $this->metadataGatherer = $metadataGatherer;
     }
 
     /**
@@ -73,10 +85,11 @@ final class EventMiddleware implements Middleware
         }
 
         try {
-            $event = $this->eventFactory->createMessageFromArray(
-                $eventName,
-                ['payload' => $request->getParsedBody()]
-            );
+            $event = $this->eventFactory->createMessageFromArray($eventName, [
+                'payload'  => $request->getParsedBody(),
+                'metadata' => $this->metadataGatherer->getFromRequest($request),
+            ]);
+
             $this->eventBus->dispatch($event);
 
             return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);

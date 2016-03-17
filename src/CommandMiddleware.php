@@ -44,14 +44,27 @@ final class CommandMiddleware implements Middleware
      */
     private $commandFactory;
 
+
+    /**
+     * Gatherer of metadata from the request object
+     *
+     * @var MetadataGatherer
+     */
+    private $metadataGatherer;
+
     /**
      * @param CommandBus $commandBus Dispatches command
      * @param MessageFactory $commandFactory Creates message depending on command name
+     * @param MetadataGatherer $metadataGatherer Gatherer of metadata
      */
-    public function __construct(CommandBus $commandBus, MessageFactory $commandFactory)
-    {
+    public function __construct(
+        CommandBus $commandBus,
+        MessageFactory $commandFactory,
+        MetadataGatherer $metadataGatherer
+    ) {
         $this->commandBus = $commandBus;
         $this->commandFactory = $commandFactory;
+        $this->metadataGatherer = $metadataGatherer;
     }
 
     /**
@@ -73,10 +86,11 @@ final class CommandMiddleware implements Middleware
         }
 
         try {
-            $command = $this->commandFactory->createMessageFromArray(
-                $commandName,
-                ['payload' => $request->getParsedBody()]
-            );
+            $command = $this->commandFactory->createMessageFromArray($commandName, [
+                'payload'  => $request->getParsedBody(),
+                'metadata' => $this->metadataGatherer->getFromRequest($request),
+            ]);
+
             $this->commandBus->dispatch($command);
 
             return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);

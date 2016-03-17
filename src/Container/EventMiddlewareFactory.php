@@ -15,6 +15,7 @@ use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\EventMiddleware;
+use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\ServiceBus\EventBus;
 
 final class EventMiddlewareFactory implements RequiresContainerId, ProvidesDefaultOptions, RequiresMandatoryOptions
@@ -31,9 +32,16 @@ final class EventMiddlewareFactory implements RequiresContainerId, ProvidesDefau
     {
         $options = $this->options($container->get('config'));
 
+        if (isset($options['metadata_gatherer'])) {
+            $gatherer = $container->get($options['metadata_gatherer']);
+        } else {
+            $gatherer = new NoopMetadataGatherer();
+        }
+
         return new EventMiddleware(
             $container->get($options['event_bus']),
-            $container->get($options['message_factory'])
+            $container->get($options['message_factory']),
+            $gatherer
         );
     }
 

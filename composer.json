@@ -43,7 +43,8 @@
     "satooshi/php-coveralls": "^1.0",
     "container-interop/container-interop" : "^1.1",
     "sandrokeil/interop-config": "^0.3.1",
-    "tobiju/bookdown-bootswatch-templates": "^0.3.0"
+    "tobiju/bookdown-bootswatch-templates": "^0.3.0",
+    "zendframework/zend-servicemanager": "~2.7|~3.0"
   },
   "suggest": {
     "container-interop/container-interop": "For usage of provided factories",

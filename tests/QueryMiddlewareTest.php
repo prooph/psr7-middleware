@@ -12,6 +12,7 @@ namespace ProophTest\Psr7Middleware;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
+use Prooph\Psr7Middleware\MetadataGatherer;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\Psr7Middleware\Middleware;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
@@ -45,7 +46,10 @@ class QueryMiddlewareTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
 
-        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal());
+        $gatherer = $this->prophesize(MetadataGatherer::class);
+        $gatherer->getFromRequest($request)->shouldNotBeCalled();
+
+        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
         $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
     }
@@ -85,7 +89,10 @@ class QueryMiddlewareTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
 
-        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal());
+        $gatherer = $this->prophesize(MetadataGatherer::class);
+        $gatherer->getFromRequest($request)->shouldBeCalled();
+
+        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
         $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
     }
@@ -109,7 +116,7 @@ class QueryMiddlewareTest extends TestCase
         $messageFactory
             ->createMessageFromArray(
                 $queryName,
-                ['payload' => $payload]
+                ['payload' => $payload, 'metadata' => []]
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
@@ -125,7 +132,10 @@ class QueryMiddlewareTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Argument::type('integer'))->shouldNotBeCalled();
 
-        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal());
+        $gatherer = $this->prophesize(MetadataGatherer::class);
+        $gatherer->getFromRequest($request)->shouldBeCalled();
+
+        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
         $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
     }
 
@@ -149,7 +159,7 @@ class QueryMiddlewareTest extends TestCase
         $messageFactory
             ->createMessageFromArray(
                 $queryName,
-                ['payload' => array_merge($payload, ['data' => $parsedBody])]
+                ['payload' => array_merge($payload, ['data' => $parsedBody]), 'metadata' => []]
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
@@ -166,7 +176,10 @@ class QueryMiddlewareTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Argument::type('integer'))->shouldNotBeCalled();
 
-        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal());
+        $gatherer = $this->prophesize(MetadataGatherer::class);
+        $gatherer->getFromRequest($request)->shouldBeCalled();
+
+        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
         $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
     }
 }

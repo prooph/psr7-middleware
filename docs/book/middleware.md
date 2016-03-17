@@ -42,12 +42,13 @@ for the message is extracted from the body of the request (`$request->getParsedB
 to create the `\Prooph\Common\Messaging\Message` object. Your specific message data must be located under the `payload` 
 key. The value of `$request->getParsedBody()` is an array like this:
 
-```php
+```
 [
     'message_name' => 'command:register-user',
     'payload' => [
         'name' => 'prooph'
     ],
+    'metadata' => []
     // other keys like uuid
 ]
 ```

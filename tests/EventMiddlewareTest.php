@@ -13,6 +13,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\EventMiddleware;
+use Prooph\Psr7Middleware\MetadataGatherer;
 use Prooph\Psr7Middleware\Middleware;
 use Prooph\ServiceBus\EventBus;
 use Prophecy\Argument;
@@ -40,7 +41,10 @@ class EventMiddlewareTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
 
-        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal());
+        $gatherer = $this->prophesize(MetadataGatherer::class);
+        $gatherer->getFromRequest($request)->shouldNotBeCalled();
+
+        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
 
         $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
     }
@@ -64,7 +68,7 @@ class EventMiddlewareTest extends TestCase
         $messageFactory
             ->createMessageFromArray(
                 $eventName,
-                ['payload' => $payload]
+                ['payload' => $payload, 'metadata' => []]
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
@@ -76,7 +80,10 @@ class EventMiddlewareTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
 
-        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal());
+        $gatherer = $this->prophesize(MetadataGatherer::class);
+        $gatherer->getFromRequest($request)->shouldBeCalled();
+
+        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
 
         $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
     }
@@ -98,7 +105,7 @@ class EventMiddlewareTest extends TestCase
         $messageFactory
             ->createMessageFromArray(
                 $eventName,
-                ['payload' => $payload]
+                ['payload' => $payload, 'metadata' => []]
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
@@ -110,7 +117,10 @@ class EventMiddlewareTest extends TestCase
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Middleware::STATUS_CODE_ACCEPTED)->shouldBeCalled();
 
-        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal());
+        $gatherer = $this->prophesize(MetadataGatherer::class);
+        $gatherer->getFromRequest($request)->shouldBeCalled();
+
+        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
         $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
     }
 }
