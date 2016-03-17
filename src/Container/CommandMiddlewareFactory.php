@@ -15,7 +15,6 @@ use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\CommandMiddleware;
-use Prooph\Psr7Middleware\MetadataGatherer;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\ServiceBus\CommandBus;
 
