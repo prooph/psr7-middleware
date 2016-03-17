@@ -68,20 +68,20 @@ class CommandMiddlewareTest extends TestCase
         $messageFactory
             ->createMessageFromArray(
                 $commandName,
-                ['payload' => $payload]
+                ['payload' => $payload, 'metadata' => []]
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
-        $request->getAttribute(CommandMiddleware::NAME_ATTRIBUTE)->willReturn($commandName)->shouldBeCalled();
+        $request->getAttribute(CommandMiddleware::NAME_ATTRIBUTE)->willReturn($commandName);
 
         $response = $this->prophesize(ResponseInterface::class);
         $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldBeCalled();
+        $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
 
         $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
 
@@ -118,7 +118,7 @@ class CommandMiddlewareTest extends TestCase
         $response->withStatus(Middleware::STATUS_CODE_ACCEPTED)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldBeCalled();
+        $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
 
         $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
         $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));

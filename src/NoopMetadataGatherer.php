@@ -23,7 +23,8 @@ final class NoopMetadataGatherer implements MetadataGatherer
     /**
      * @inheritdoc
      */
-    public function getFromRequest(ServerRequestInterface $request) {
+    public function getFromRequest(ServerRequestInterface $request)
+    {
         return [];
     }
 }

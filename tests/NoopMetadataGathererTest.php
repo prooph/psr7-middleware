@@ -12,7 +12,6 @@ namespace ProophTest\Psr7Middleware;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Psr7Middleware\MetadataGatherer;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
-use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**

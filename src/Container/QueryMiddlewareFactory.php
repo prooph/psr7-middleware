@@ -14,7 +14,6 @@ use Interop\Config\ProvidesDefaultOptions;
 use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
-use Prooph\Psr7Middleware\MetadataGatherer;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
