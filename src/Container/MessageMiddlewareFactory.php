@@ -11,7 +11,6 @@ namespace Prooph\Psr7Middleware\Container;
 
 use Interop\Config\ConfigurationTrait;
 use Interop\Config\ProvidesDefaultOptions;
-use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\MessageMiddleware;
@@ -19,9 +18,18 @@ use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 
-final class MessageMiddlewareFactory implements RequiresContainerId, ProvidesDefaultOptions, RequiresMandatoryOptions
+final class MessageMiddlewareFactory extends AbstractMiddlewareFactory
+    implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
+
+    /**
+     * @param string $configId
+     */
+    public function __construct($configId = 'message')
+    {
+        parent::__construct($configId);
+    }
 
     /**
      * Create service.
@@ -31,7 +39,7 @@ final class MessageMiddlewareFactory implements RequiresContainerId, ProvidesDef
      */
     public function __invoke(ContainerInterface $container)
     {
-        $options = $this->options($container->get('config'));
+        $options = $this->options($container->get('config'), $this->configId);
 
         return new MessageMiddleware(
             $container->get($options['command_bus']),
@@ -40,30 +48,6 @@ final class MessageMiddlewareFactory implements RequiresContainerId, ProvidesDef
             $container->get($options['message_factory']),
             $container->get($options['response_strategy'])
         );
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function vendorName()
-    {
-        return 'prooph';
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function packageName()
-    {
-        return 'middleware';
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function containerId()
-    {
-        return 'message';
     }
 
     /**

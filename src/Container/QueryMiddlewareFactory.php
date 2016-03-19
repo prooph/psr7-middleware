@@ -11,16 +11,24 @@ namespace Prooph\Psr7Middleware\Container;
 
 use Interop\Config\ConfigurationTrait;
 use Interop\Config\ProvidesDefaultOptions;
-use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
 
-final class QueryMiddlewareFactory implements RequiresContainerId, ProvidesDefaultOptions, RequiresMandatoryOptions
+final class QueryMiddlewareFactory extends AbstractMiddlewareFactory
+    implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
+
+    /**
+     * @param string $configId
+     */
+    public function __construct($configId = 'query')
+    {
+        parent::__construct($configId);
+    }
 
     /**
      * Create service.
@@ -30,7 +38,7 @@ final class QueryMiddlewareFactory implements RequiresContainerId, ProvidesDefau
      */
     public function __invoke(ContainerInterface $container)
     {
-        $options = $this->options($container->get('config'));
+        $options = $this->options($container->get('config'), $this->configId);
 
         if (isset($options['metadata_gatherer'])) {
             $gatherer = $container->get($options['metadata_gatherer']);
@@ -44,30 +52,6 @@ final class QueryMiddlewareFactory implements RequiresContainerId, ProvidesDefau
             $container->get($options['response_strategy']),
             $gatherer
         );
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function vendorName()
-    {
-        return 'prooph';
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function packageName()
-    {
-        return 'middleware';
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function containerId()
-    {
-        return 'query';
     }
 
     /**
