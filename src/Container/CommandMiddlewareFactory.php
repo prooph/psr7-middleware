@@ -11,16 +11,24 @@ namespace Prooph\Psr7Middleware\Container;
 
 use Interop\Config\ConfigurationTrait;
 use Interop\Config\ProvidesDefaultOptions;
-use Interop\Config\RequiresContainerId;
 use Interop\Config\RequiresMandatoryOptions;
 use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\CommandMiddleware;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\ServiceBus\CommandBus;
 
-final class CommandMiddlewareFactory implements RequiresContainerId, ProvidesDefaultOptions, RequiresMandatoryOptions
+final class CommandMiddlewareFactory extends AbstractMiddlewareFactory
+    implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
+
+    /**
+     * @interitdoc
+     */
+    public function __construct($configId = 'command')
+    {
+        parent::__construct($configId);
+    }
 
     /**
      * Create service.
@@ -30,7 +38,7 @@ final class CommandMiddlewareFactory implements RequiresContainerId, ProvidesDef
      */
     public function __invoke(ContainerInterface $container)
     {
-        $options = $this->options($container->get('config'));
+        $options = $this->options($container->get('config'), $this->configId);
 
         if (isset($options['metadata_gatherer'])) {
             $gatherer = $container->get($options['metadata_gatherer']);
@@ -43,30 +51,6 @@ final class CommandMiddlewareFactory implements RequiresContainerId, ProvidesDef
             $container->get($options['message_factory']),
             $gatherer
         );
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function vendorName()
-    {
-        return 'prooph';
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function packageName()
-    {
-        return 'middleware';
-    }
-
-    /**
-     * @interitdoc
-     */
-    public function containerId()
-    {
-        return 'command';
     }
 
     /**

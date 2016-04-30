@@ -13,6 +13,8 @@ use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\MessageMiddlewareFactory;
+use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
+use Prooph\Psr7Middleware\MessageMiddleware;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
@@ -26,7 +28,7 @@ class MessageMiddlewareFactoryTest extends TestCase
     {
         $factory = new MessageMiddlewareFactory();
 
-        self::assertInstanceOf(\Interop\Config\RequiresContainerId::class, $factory);
+        self::assertInstanceOf(\Interop\Config\RequiresConfigId::class, $factory);
         self::assertInstanceOf(\Interop\Config\RequiresMandatoryOptions::class, $factory);
         self::assertInstanceOf(\Interop\Config\ProvidesDefaultOptions::class, $factory);
     }
@@ -37,33 +39,7 @@ class MessageMiddlewareFactoryTest extends TestCase
     public function it_creates_message_middleware()
     {
         $factory = new MessageMiddlewareFactory();
-        $container = $this->prophesize(ContainerInterface::class);
-        $strategy = $this->prophesize(\Prooph\Psr7Middleware\Response\ResponseStrategy::class);
-        $messageFactory = $this->prophesize(MessageFactory::class);
-
-        $container->has('config')->willReturn(true);
-        $container->get('config')->willReturn([
-            'prooph' => [
-                'middleware' => [
-                    'message' => [
-                        'message_factory' => 'custom_message_factory',
-                        'response_strategy' => 'JsonResponseStrategy',
-                    ]
-                ]
-            ]
-        ]);
-
-        $container->has('custom_message_factory')->willReturn(true);
-        $container->get('custom_message_factory')->willReturn($messageFactory);
-        $container->has('JsonResponseStrategy')->willReturn(true);
-        $container->get('JsonResponseStrategy')->willReturn($strategy);
-
-        $container->has(CommandBus::class)->willReturn(true);
-        $container->get(CommandBus::class)->willReturn($this->prophesize(CommandBus::class));
-        $container->has(EventBus::class)->willReturn(true);
-        $container->get(EventBus::class)->willReturn($this->prophesize(EventBus::class));
-        $container->has(QueryBus::class)->willReturn(true);
-        $container->get(QueryBus::class)->willReturn($this->prophesize(QueryBus::class));
+        $container = $this->getValidConfiguredContainer('message');
 
         $factory($container->reveal());
     }
@@ -89,5 +65,65 @@ class MessageMiddlewareFactoryTest extends TestCase
         ]);
 
         $factory($container->reveal());
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_message_middleware_from_static_call()
+    {
+        $container = $this->getValidConfiguredContainer('other_config_id');
+
+        $factory = [MessageMiddlewareFactory::class, 'other_config_id'];
+        self::assertInstanceOf(MessageMiddleware::class, $factory($container->reveal()));
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_invalid_argument_exception_without_container_on_static_call()
+    {
+        $this->setExpectedException(
+            InvalidArgumentException::class,
+            'The first argument must be of type Interop\Container\ContainerInterface'
+        );
+        MessageMiddlewareFactory::other_config_id();
+    }
+
+    /**
+     * @param string $configId
+     * @return \Prophecy\Prophecy\ObjectProphecy
+     */
+    private function getValidConfiguredContainer($configId)
+    {
+        $container = $this->prophesize(ContainerInterface::class);
+        $strategy = $this->prophesize(\Prooph\Psr7Middleware\Response\ResponseStrategy::class);
+        $messageFactory = $this->prophesize(MessageFactory::class);
+
+        $container->has('config')->willReturn(true);
+        $container->get('config')->willReturn([
+            'prooph' => [
+                'middleware' => [
+                    $configId => [
+                        'message_factory' => 'custom_message_factory',
+                        'response_strategy' => 'JsonResponseStrategy',
+                    ]
+                ]
+            ]
+        ]);
+
+        $container->has('custom_message_factory')->willReturn(true);
+        $container->get('custom_message_factory')->willReturn($messageFactory);
+        $container->has('JsonResponseStrategy')->willReturn(true);
+        $container->get('JsonResponseStrategy')->willReturn($strategy);
+
+        $container->has(CommandBus::class)->willReturn(true);
+        $container->get(CommandBus::class)->willReturn($this->prophesize(CommandBus::class));
+        $container->has(EventBus::class)->willReturn(true);
+        $container->get(EventBus::class)->willReturn($this->prophesize(EventBus::class));
+        $container->has(QueryBus::class)->willReturn(true);
+        $container->get(QueryBus::class)->willReturn($this->prophesize(QueryBus::class));
+
+        return $container;
     }
 }

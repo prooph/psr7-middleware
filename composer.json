@@ -30,6 +30,8 @@
     "messaging",
     "psr7"
   ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "php": "^5.5 || ^7.0",
     "prooph/common": "^3.3",
@@ -38,17 +40,20 @@
     "react/promise" : "^2.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.8 || ^5.0",
+    "phpunit/phpunit": "^4.8 || ^5.2",
     "fabpot/php-cs-fixer": "^1.11",
     "satooshi/php-coveralls": "^1.0",
     "container-interop/container-interop" : "^1.1",
-    "sandrokeil/interop-config": "^0.3.1",
-    "tobiju/bookdown-bootswatch-templates": "^0.3.0",
-    "zendframework/zend-servicemanager": "~2.7|~3.0"
+    "sandrokeil/interop-config": "^1.0",
+    "tobiju/bookdown-bootswatch-templates": "^1.0",
+    "zendframework/zend-servicemanager": "~2.7 || ~3.0"
   },
   "suggest": {
     "container-interop/container-interop": "For usage of provided factories",
     "sandrokeil/interop-config": "For usage of provided factories"
+  },
+  "conflict": {
+    "sandrokeil/interop-config": "<1.0"
   },
   "autoload": {
     "psr-4": {
