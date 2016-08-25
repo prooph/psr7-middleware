@@ -13,7 +13,6 @@ use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\MessageMiddlewareFactory;
-use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\Psr7Middleware\MessageMiddleware;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;

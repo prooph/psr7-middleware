@@ -36,7 +36,18 @@ class EventMiddlewareFactoryTest extends TestCase
     public function it_creates_event_middleware()
     {
         $factory = new EventMiddlewareFactory();
-        $container = $this->getValidConfiguredContainer('event');
+        $container = $this->getValidConfiguredContainer('event', null);
+
+        $factory($container->reveal());
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_event_middleware_with_another_gatherer()
+    {
+        $factory = new EventMiddlewareFactory();
+        $container = $this->getValidConfiguredContainer('event', new StubMetadataGatherer());
 
         $factory($container->reveal());
     }
@@ -68,7 +79,7 @@ class EventMiddlewareFactoryTest extends TestCase
      */
     public function it_creates_event_middleware_from_static_call()
     {
-        $container = $this->getValidConfiguredContainer('other_config_id');
+        $container = $this->getValidConfiguredContainer('other_config_id', null);
 
         $factory = [EventMiddlewareFactory::class, 'other_config_id'];
         self::assertInstanceOf(EventMiddleware::class, $factory($container->reveal()));
@@ -86,15 +97,15 @@ class EventMiddlewareFactoryTest extends TestCase
 
     /**
      * @param string $configId
+     * @param StubMetadataGatherer|null $gatherer
      * @return \Prophecy\Prophecy\ObjectProphecy
      */
-    private function getValidConfiguredContainer($configId)
+    private function getValidConfiguredContainer($configId, $gatherer)
     {
         $container = $this->prophesize(ContainerInterface::class);
         $messageFactory = $this->prophesize(MessageFactory::class);
 
-        $container->has('config')->willReturn(true);
-        $container->get('config')->willReturn([
+        $config = [
             'prooph' => [
                 'middleware' => [
                     $configId => [
@@ -102,7 +113,15 @@ class EventMiddlewareFactoryTest extends TestCase
                     ]
                 ]
             ]
-        ]);
+        ];
+
+        if (null !== $gatherer) {
+            $config['prooph']['middleware'][$configId]['metadata_gatherer'] = get_class($gatherer);
+            $container->get(get_class($gatherer))->willReturn($gatherer);
+        }
+
+        $container->has('config')->willReturn(true);
+        $container->get('config')->willReturn($config);
 
         $container->has('custom_message_factory')->willReturn(true);
         $container->get('custom_message_factory')->willReturn($messageFactory);
