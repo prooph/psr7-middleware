@@ -78,13 +78,11 @@ class QueryMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
+     * @expectedException \Prooph\Psr7Middleware\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The first argument must be of type Interop\Container\ContainerInterface
      */
     public function it_throws_invalid_argument_exception_without_container_on_static_call()
     {
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'The first argument must be of type Interop\Container\ContainerInterface'
-        );
         QueryMiddlewareFactory::other_config_id();
     }
 
