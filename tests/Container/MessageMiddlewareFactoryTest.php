@@ -13,7 +13,6 @@ use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\MessageMiddlewareFactory;
-use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\Psr7Middleware\MessageMiddleware;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
@@ -80,13 +79,11 @@ class MessageMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
+     * @expectedException \Prooph\Psr7Middleware\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The first argument must be of type Interop\Container\ContainerInterface
      */
     public function it_throws_invalid_argument_exception_without_container_on_static_call()
     {
-        $this->setExpectedException(
-            InvalidArgumentException::class,
-            'The first argument must be of type Interop\Container\ContainerInterface'
-        );
         MessageMiddlewareFactory::other_config_id();
     }
 
