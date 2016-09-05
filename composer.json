@@ -74,6 +74,7 @@
     "coveralls": "coveralls",
     "cs": "php-cs-fixer fix -v --diff --dry-run",
     "cs-fix": "php-cs-fixer fix -v --diff",
+    "check-license": "docheader check src/ tests/",
     "test": "phpunit",
     "test-coverage": "phpunit --coverage-clover build/logs/clover.xml",
     "docs": "bookdown docs/bookdown.json"
