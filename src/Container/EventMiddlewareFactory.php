@@ -24,21 +24,12 @@ final class EventMiddlewareFactory extends AbstractMiddlewareFactory implements 
 {
     use ConfigurationTrait;
 
-    /**
-     * @param string $configId
-     */
-    public function __construct($configId = 'event')
+    public function __construct(string $configId = 'event')
     {
         parent::__construct($configId);
     }
 
-    /**
-     * Create service.
-     *
-     * @param ContainerInterface $container
-     * @return EventMiddleware
-     */
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container): EventMiddleware
     {
         $options = $this->options($container->get('config'), $this->configId);
 
@@ -55,18 +46,12 @@ final class EventMiddlewareFactory extends AbstractMiddlewareFactory implements 
         );
     }
 
-    /**
-     * @interitdoc
-     */
-    public function defaultOptions()
+    public function defaultOptions(): array
     {
         return ['event_bus' => EventBus::class];
     }
 
-    /**
-     * @interitdoc
-     */
-    public function mandatoryOptions()
+    public function mandatoryOptions(): array
     {
         return ['message_factory'];
     }

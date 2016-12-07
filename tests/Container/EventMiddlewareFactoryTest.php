@@ -1,17 +1,20 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of the prooph/psr7-middleware.
+ * (c) 2014-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2015-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware\Container;
 
 use Interop\Config\Exception\MandatoryOptionNotFoundException;
 use Interop\Container\ContainerInterface;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\EventMiddlewareFactory;
 use Prooph\Psr7Middleware\EventMiddleware;
@@ -24,7 +27,7 @@ class EventMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_implements_config_interop()
+    public function it_implements_config_interop(): void
     {
         $factory = new EventMiddlewareFactory();
 
@@ -36,7 +39,7 @@ class EventMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_event_middleware()
+    public function it_creates_event_middleware(): void
     {
         $factory = new EventMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('event', null);
@@ -47,7 +50,7 @@ class EventMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_event_middleware_with_another_gatherer()
+    public function it_creates_event_middleware_with_another_gatherer(): void
     {
         $factory = new EventMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('event', new StubMetadataGatherer());
@@ -81,9 +84,9 @@ class EventMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_event_middleware_from_static_call()
+    public function it_creates_event_middleware_from_static_call(): void
     {
-        $container = $this->getValidConfiguredContainer('other_config_id');
+        $container = $this->getValidConfiguredContainer('other_config_id', null);
 
         $factory = [EventMiddlewareFactory::class, 'other_config_id'];
         self::assertInstanceOf(EventMiddleware::class, $factory($container->reveal()));
@@ -92,7 +95,7 @@ class EventMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_invalid_argument_exception_without_container_on_static_call()
+    public function it_throws_invalid_argument_exception_without_container_on_static_call(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The first argument must be of type Interop\Container\ContainerInterface');

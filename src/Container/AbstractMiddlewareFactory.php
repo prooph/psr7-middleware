@@ -42,12 +42,10 @@ abstract class AbstractMiddlewareFactory implements RequiresConfigId
      * ];
      * </code>
      *
-     * @param string $name
-     * @param array $arguments
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public static function __callStatic($name, array $arguments)
+    public static function __callStatic(string $name, array $arguments)
     {
         if (! isset($arguments[0]) || ! $arguments[0] instanceof ContainerInterface) {
             throw new InvalidArgumentException(
@@ -58,19 +56,13 @@ abstract class AbstractMiddlewareFactory implements RequiresConfigId
         return (new static($name))->__invoke($arguments[0]);
     }
 
-    /**
-     * @param string $configId
-     */
-    public function __construct($configId)
+    public function __construct(string $configId)
     {
         // ensure BC
         $this->configId = method_exists($this, 'containerId') ? $this->containerId() : $configId;
     }
 
-    /**
-     * @interitdoc
-     */
-    public function dimensions()
+    public function dimensions(): array
     {
         return ['prooph', 'middleware'];
     }

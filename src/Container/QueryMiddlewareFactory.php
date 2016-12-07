@@ -24,21 +24,12 @@ final class QueryMiddlewareFactory extends AbstractMiddlewareFactory implements 
 {
     use ConfigurationTrait;
 
-    /**
-     * @param string $configId
-     */
-    public function __construct($configId = 'query')
+    public function __construct(string $configId = 'query')
     {
         parent::__construct($configId);
     }
 
-    /**
-     * Create service.
-     *
-     * @param ContainerInterface $container
-     * @return QueryMiddleware
-     */
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container): QueryMiddleware
     {
         $options = $this->options($container->get('config'), $this->configId);
 
@@ -56,18 +47,12 @@ final class QueryMiddlewareFactory extends AbstractMiddlewareFactory implements 
         );
     }
 
-    /**
-     * @interitdoc
-     */
-    public function defaultOptions()
+    public function defaultOptions(): array
     {
         return ['query_bus' => QueryBus::class];
     }
 
-    /**
-     * @interitdoc
-     */
-    public function mandatoryOptions()
+    public function mandatoryOptions(): array
     {
         return ['message_factory', 'response_strategy'];
     }

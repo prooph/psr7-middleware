@@ -25,21 +25,12 @@ final class MessageMiddlewareFactory extends AbstractMiddlewareFactory implement
 {
     use ConfigurationTrait;
 
-    /**
-     * @param string $configId
-     */
-    public function __construct($configId = 'message')
+    public function __construct(string $configId = 'message')
     {
         parent::__construct($configId);
     }
 
-    /**
-     * Create service.
-     *
-     * @param ContainerInterface $container
-     * @return MessageMiddleware
-     */
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container): MessageMiddleware
     {
         $options = $this->options($container->get('config'), $this->configId);
 
@@ -52,10 +43,7 @@ final class MessageMiddlewareFactory extends AbstractMiddlewareFactory implement
         );
     }
 
-    /**
-     * @interitdoc
-     */
-    public function defaultOptions()
+    public function defaultOptions(): array
     {
         return [
             'command_bus' => CommandBus::class,
@@ -64,10 +52,7 @@ final class MessageMiddlewareFactory extends AbstractMiddlewareFactory implement
         ];
     }
 
-    /**
-     * @interitdoc
-     */
-    public function mandatoryOptions()
+    public function mandatoryOptions(): array
     {
         return ['message_factory', 'response_strategy'];
     }
