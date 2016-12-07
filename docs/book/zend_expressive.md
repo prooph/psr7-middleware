@@ -2,7 +2,7 @@
 The [Zend Expressive](https://github.com/zendframework/zend-expressive) integration is very easy, because you can use 
 the predefined factories and configuration examples of the specific prooph component.
 
-> Take a look at the Zend Expressive [prooph components in action)(https://github.com/prooph/proophessor-do "proophessor-do example app") 
+> Take a look at the Zend Expressive [prooph components in action](https://github.com/prooph/proophessor-do "proophessor-do example app") 
 example app.
 
 ## Routes
