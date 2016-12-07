@@ -1,15 +1,18 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of the prooph/psr7-middleware.
+ * (c) 2014-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2015-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\CommandMiddleware;
@@ -28,7 +31,7 @@ class CommandMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_command_name_attribute_is_not_set()
+    public function it_calls_next_with_exception_if_command_name_attribute_is_not_set(): void
     {
         $commandBus = $this->prophesize(CommandBus::class);
         $commandBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
@@ -52,7 +55,7 @@ class CommandMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_dispatch_failed()
+    public function it_calls_next_with_exception_if_dispatch_failed(): void
     {
         $commandName = 'stdClass';
         $payload = ['user_id' => 123];
@@ -91,7 +94,7 @@ class CommandMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_the_command()
+    public function it_dispatches_the_command(): void
     {
         $commandName = 'stdClass';
         $payload = ['user_id' => 123];

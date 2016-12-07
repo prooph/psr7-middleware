@@ -1,28 +1,33 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of the prooph/psr7-middleware.
+ * (c) 2014-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2015-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware\Container;
 
+use Interop\Config\Exception\MandatoryOptionNotFoundException;
 use Interop\Container\ContainerInterface;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\QueryMiddlewareFactory;
 use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class QueryMiddlewareFactoryTest extends TestCase
 {
     /**
      * @test
      */
-    public function it_implements_config_interop()
+    public function it_implements_config_interop(): void
     {
         $factory = new QueryMiddlewareFactory();
 
@@ -34,7 +39,7 @@ class QueryMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_query_middleware()
+    public function it_creates_query_middleware(): void
     {
         $factory = new QueryMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('query');
@@ -44,10 +49,11 @@ class QueryMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Interop\Config\Exception\MandatoryOptionNotFoundException
      */
-    public function it_throws_exception_if_option_is_missing()
+    public function it_throws_exception_if_option_is_missing(): void
     {
+        $this->expectException(MandatoryOptionNotFoundException::class);
+
         $factory = new QueryMiddlewareFactory();
         $container = $this->prophesize(ContainerInterface::class);
 
@@ -68,7 +74,7 @@ class QueryMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_query_middleware_from_static_call()
+    public function it_creates_query_middleware_from_static_call(): void
     {
         $container = $this->getValidConfiguredContainer('other_config_id');
 
@@ -79,7 +85,7 @@ class QueryMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_invalid_argument_exception_without_container_on_static_call()
+    public function it_throws_invalid_argument_exception_without_container_on_static_call(): void
     {
         $this->setExpectedException(
             InvalidArgumentException::class,
@@ -88,11 +94,7 @@ class QueryMiddlewareFactoryTest extends TestCase
         QueryMiddlewareFactory::other_config_id();
     }
 
-    /**
-     * @param string $configId
-     * @return \Prophecy\Prophecy\ObjectProphecy
-     */
-    private function getValidConfiguredContainer($configId)
+    private function getValidConfiguredContainer(string $configId): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
         $strategy = $this->prophesize(\Prooph\Psr7Middleware\Response\ResponseStrategy::class);

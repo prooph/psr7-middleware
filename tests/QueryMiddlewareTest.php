@@ -1,15 +1,18 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of the prooph/psr7-middleware.
+ * (c) 2014-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2015-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\MetadataGatherer;
@@ -30,7 +33,7 @@ class QueryMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_query_name_attribute_is_not_set()
+    public function it_calls_next_with_exception_if_query_name_attribute_is_not_set(): void
     {
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
@@ -57,7 +60,7 @@ class QueryMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_dispatch_failed()
+    public function it_calls_next_with_exception_if_dispatch_failed(): void
     {
         $queryName = 'stdClass';
         $payload = ['user_id' => 123];
@@ -100,7 +103,7 @@ class QueryMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_the_query()
+    public function it_dispatches_the_query(): void
     {
         $queryName = 'stdClass';
         $payload = ['user_id' => 123];
@@ -142,7 +145,7 @@ class QueryMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_the_query_with_post_data()
+    public function it_dispatches_the_query_with_post_data(): void
     {
         $queryName = 'stdClass';
         $parsedBody = ['filter' => []];

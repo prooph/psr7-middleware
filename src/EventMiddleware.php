@@ -1,11 +1,14 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of the prooph/psr7-middleware.
+ * (c) 2014-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2015-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware;
 
@@ -51,11 +54,6 @@ final class EventMiddleware implements Middleware
      */
     private $metadataGatherer;
 
-    /**
-     * @param EventBus $eventBus Dispatches event
-     * @param MessageFactory $eventFactory Creates message depending on event name
-     * @param MetadataGatherer $metadataGatherer Gatherer of metadata
-     */
     public function __construct(
         EventBus $eventBus,
         MessageFactory $eventFactory,
@@ -66,9 +64,6 @@ final class EventMiddleware implements Middleware
         $this->metadataGatherer = $metadataGatherer;
     }
 
-    /**
-     * @interitdoc
-     */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $eventName = $request->getAttribute(self::NAME_ATTRIBUTE);
