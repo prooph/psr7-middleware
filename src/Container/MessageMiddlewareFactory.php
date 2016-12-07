@@ -52,7 +52,7 @@ final class MessageMiddlewareFactory extends AbstractMiddlewareFactory implement
         ];
     }
 
-    public function mandatoryOptions(): array
+    public function mandatoryOptions(): iterable
     {
         return ['message_factory', 'response_strategy'];
     }

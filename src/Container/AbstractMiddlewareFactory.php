@@ -62,7 +62,7 @@ abstract class AbstractMiddlewareFactory implements RequiresConfigId
         $this->configId = method_exists($this, 'containerId') ? $this->containerId() : $configId;
     }
 
-    public function dimensions(): array
+    public function dimensions(): iterable
     {
         return ['prooph', 'middleware'];
     }

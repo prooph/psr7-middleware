@@ -52,7 +52,7 @@ final class QueryMiddlewareFactory extends AbstractMiddlewareFactory implements 
         return ['query_bus' => QueryBus::class];
     }
 
-    public function mandatoryOptions(): array
+    public function mandatoryOptions(): iterable
     {
         return ['message_factory', 'response_strategy'];
     }

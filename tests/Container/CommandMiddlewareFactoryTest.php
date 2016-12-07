@@ -42,7 +42,7 @@ class CommandMiddlewareFactoryTest extends TestCase
     public function it_creates_command_middleware(): void
     {
         $factory = new CommandMiddlewareFactory();
-        $container = $this->getValidConfiguredContainer('command');
+        $container = $this->getValidConfiguredContainer('command', null);
 
         self::assertInstanceOf(CommandMiddleware::class, $factory($container->reveal()));
     }
@@ -75,7 +75,7 @@ class CommandMiddlewareFactoryTest extends TestCase
      */
     public function it_creates_command_middleware_from_static_call(): void
     {
-        $container = $this->getValidConfiguredContainer('other_config_id');
+        $container = $this->getValidConfiguredContainer('other_config_id', null);
 
         $factory = [CommandMiddlewareFactory::class, 'other_config_id'];
         self::assertInstanceOf(CommandMiddleware::class, $factory($container->reveal()));
@@ -92,7 +92,7 @@ class CommandMiddlewareFactoryTest extends TestCase
         CommandMiddlewareFactory::other_config_id();
     }
 
-    private function getValidConfiguredContainer(string $configId): ObjectProphecy
+    private function getValidConfiguredContainer(string $configId, ?StubMetadataGatherer $gatherer): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
         $messageFactory = $this->prophesize(MessageFactory::class);

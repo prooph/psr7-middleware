@@ -51,7 +51,7 @@ final class CommandMiddlewareFactory extends AbstractMiddlewareFactory implement
         return ['command_bus' => CommandBus::class];
     }
 
-    public function mandatoryOptions(): array
+    public function mandatoryOptions(): iterable
     {
         return ['message_factory'];
     }
