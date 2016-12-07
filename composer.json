@@ -37,21 +37,22 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^5.5 || ^7.0",
-    "prooph/common": "^3.3",
-    "prooph/service-bus" : "^5.0",
+    "php": "^7.1",
+    "prooph/common": "4.0.x-dev",
+    "prooph/service-bus" : "6.0.x-dev",
     "psr/http-message": "^1.0",
     "react/promise" : "^2.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.8 || ^5.2",
-    "fabpot/php-cs-fixer": "^1.11",
+    "phpunit/phpunit": "^5.7",
+    "phpspec/prophecy": "dev-patch-1 as 1.6.2",
+    "prooph/php-cs-fixer-config": "^0.1.1",
     "satooshi/php-coveralls": "^1.0",
     "container-interop/container-interop" : "^1.1",
     "sandrokeil/interop-config": "^1.0",
     "tobiju/bookdown-bootswatch-templates": "^1.0",
-    "zendframework/zend-servicemanager": "~2.7 || ~3.0",
-    "malukenho/docheader": "^0.1.3"
+    "zendframework/zend-servicemanager": "^3.1",
+    "malukenho/docheader": "^0.1.4"
   },
   "suggest": {
     "container-interop/container-interop": "For usage of provided factories",
@@ -70,6 +71,11 @@
       "ProophTest\\Psr7Middleware\\": "tests/"
     }
   },
+  "extra": {
+    "branch-alias": {
+      "dev-develop": "0.4-dev"
+    }
+  },
   "scripts": {
     "check": [
       "@cs",
@@ -82,5 +88,11 @@
     "test": "phpunit",
     "test-coverage": "phpunit --coverage-clover build/logs/clover.xml",
     "docs": "bookdown docs/bookdown.json"
-  }
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/prolic/prophecy.git"
+    }
+  ]
 }

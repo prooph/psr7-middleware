@@ -9,12 +9,15 @@
 
 namespace ProophTest\Psr7Middleware\Container;
 
+use Interop\Config\Exception\MandatoryOptionNotFoundException;
 use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\EventMiddlewareFactory;
 use Prooph\Psr7Middleware\EventMiddleware;
+use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\ServiceBus\EventBus;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class EventMiddlewareFactoryTest extends TestCase
 {
@@ -54,10 +57,11 @@ class EventMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Interop\Config\Exception\MandatoryOptionNotFoundException
      */
-    public function it_throws_exception_if_option_is_missing()
+    public function it_throws_exception_if_option_is_missing(): void
     {
+        $this->expectException(MandatoryOptionNotFoundException::class);
+
         $factory = new EventMiddlewareFactory();
         $container = $this->prophesize(ContainerInterface::class);
 
@@ -66,9 +70,9 @@ class EventMiddlewareFactoryTest extends TestCase
             'prooph' => [
                 'middleware' => [
                     'event' => [
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $factory($container->reveal());
@@ -79,7 +83,7 @@ class EventMiddlewareFactoryTest extends TestCase
      */
     public function it_creates_event_middleware_from_static_call()
     {
-        $container = $this->getValidConfiguredContainer('other_config_id', null);
+        $container = $this->getValidConfiguredContainer('other_config_id');
 
         $factory = [EventMiddlewareFactory::class, 'other_config_id'];
         self::assertInstanceOf(EventMiddleware::class, $factory($container->reveal()));
@@ -87,20 +91,16 @@ class EventMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Prooph\Psr7Middleware\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The first argument must be of type Interop\Container\ContainerInterface
      */
     public function it_throws_invalid_argument_exception_without_container_on_static_call()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The first argument must be of type Interop\Container\ContainerInterface');
+
         EventMiddlewareFactory::other_config_id();
     }
 
-    /**
-     * @param string $configId
-     * @param StubMetadataGatherer|null $gatherer
-     * @return \Prophecy\Prophecy\ObjectProphecy
-     */
-    private function getValidConfiguredContainer($configId, $gatherer)
+    private function getValidConfiguredContainer(string $configId, ?StubMetadataGatherer $gatherer): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
         $messageFactory = $this->prophesize(MessageFactory::class);

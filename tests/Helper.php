@@ -1,14 +1,18 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of the prooph/psr7-middleware.
+ * (c) 2014-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2015-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
+use PHPUnit\Framework\TestCase;
 use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -22,10 +26,8 @@ class Helper
 {
     /**
      * Returns the response with the exception code as HTTP status code
-     *
-     * @return \Closure
      */
-    public static function callableWithExceptionResponse()
+    public static function callableWithExceptionResponse(): \Closure
     {
         return function (ServerRequestInterface $request, ResponseInterface $response, RuntimeException $ex) {
             return $response->withStatus($ex->getCode());
@@ -34,11 +36,8 @@ class Helper
 
     /**
      * Ensures that $next is not called
-     *
-     * @param \PHPUnit_Framework_TestCase $phpunit
-     * @return \Closure
      */
-    public static function callableShouldNotBeCalledWithException(\PHPUnit_Framework_TestCase $phpunit)
+    public static function callableShouldNotBeCalledWithException(TestCase $phpunit): \Closure
     {
         return function (ServerRequestInterface $request, ResponseInterface $response, RuntimeException $ex) use (
             $phpunit

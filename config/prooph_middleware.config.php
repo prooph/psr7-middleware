@@ -1,11 +1,16 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of the prooph/psr7-middleware.
+ * (c) 2014-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2015-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
+
+namespace Prooph\Psr7Middleware;
 
 /**
  * This file contains default configuration for prooph/psr7-middleware
@@ -37,14 +42,14 @@ return [
                 // container/service id, see \Prooph\Common\Messaging\MessageFactory for more details
                 'message_factory' => \Prooph\Common\Messaging\FQCNMessageFactory::class,
                 // container/service id for the CommandBus instance, default CommandBus::class
-                'command_bus' => 'custom_command_bus'
+                'command_bus' => 'custom_command_bus',
             ],
             //This section will be used by \Prooph\Psr7Middleware\Container\EventMiddlewareFactory
             'event' => [
                 // container/service id, see \Prooph\Common\Messaging\MessageFactory for more details
                 'message_factory' => \Prooph\Common\Messaging\FQCNMessageFactory::class,
                 // container/service id for the EventBus instance, default EventBus::class
-                'event_bus' => 'custom_event_bus'
+                'event_bus' => 'custom_event_bus',
             ],
             //This section will be used by \Prooph\Psr7Middleware\Container\MessageMiddlewareFactory
             'message' => [
@@ -55,7 +60,7 @@ return [
                 // must have support for all bus types e.g. command, event and query
                 'message_factory' => 'custom_message_factory',
                 // container/service id for the MessageBus instance, default MessageBus::class
-                'message_bus' => 'custom_message_bus'
+                'message_bus' => 'custom_message_bus',
             ],
         ],
     ],

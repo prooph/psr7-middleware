@@ -2,7 +2,22 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 0.3.0 TBA
+## 0.4.0 TBA
+
+### Added
+
+* PHP 7.1 support only
+* Update for new prooph components
+
+### Deprecated
+
+* Nothing
+
+### Removed
+
+* Nothing
+
+## 0.3.0
 
 ### Added
 

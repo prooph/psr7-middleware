@@ -13,8 +13,10 @@ use Interop\Container\ContainerInterface;
 use PHPUnit_Framework_TestCase as TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\QueryMiddlewareFactory;
+use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class QueryMiddlewareFactoryTest extends TestCase
 {
@@ -54,10 +56,11 @@ class QueryMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Interop\Config\Exception\MandatoryOptionNotFoundException
      */
-    public function it_throws_exception_if_option_is_missing()
+    public function it_throws_exception_if_option_is_missing(): void
     {
+        $this->expectException(MandatoryOptionNotFoundException::class);
+
         $factory = new QueryMiddlewareFactory();
         $container = $this->prophesize(ContainerInterface::class);
 
@@ -67,9 +70,9 @@ class QueryMiddlewareFactoryTest extends TestCase
                 'middleware' => [
                     'query' => [
                         'message_factory' => 'custom_message_factory',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $factory($container->reveal());
@@ -78,7 +81,7 @@ class QueryMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_query_middleware_from_static_call()
+    public function it_creates_query_middleware_from_static_call(): void
     {
         $container = $this->getValidConfiguredContainer('other_config_id', null);
 
@@ -88,20 +91,16 @@ class QueryMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Prooph\Psr7Middleware\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The first argument must be of type Interop\Container\ContainerInterface
      */
     public function it_throws_invalid_argument_exception_without_container_on_static_call()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The first argument must be of type Interop\Container\ContainerInterface');
+
         QueryMiddlewareFactory::other_config_id();
     }
 
-    /**
-     * @param string $configId
-     * @param StubMetadataGatherer|null $gatherer
-     * @return \Prophecy\Prophecy\ObjectProphecy
-     */
-    private function getValidConfiguredContainer($configId, $gatherer)
+    private function getValidConfiguredContainer(string $configId, ?StubMetadataGatherer $gatherer): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
         $strategy = $this->prophesize(\Prooph\Psr7Middleware\Response\ResponseStrategy::class);
