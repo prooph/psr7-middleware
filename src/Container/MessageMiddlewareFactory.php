@@ -21,8 +21,7 @@ use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 
-final class MessageMiddlewareFactory extends AbstractMiddlewareFactory
-    implements ProvidesDefaultOptions, RequiresMandatoryOptions
+final class MessageMiddlewareFactory extends AbstractMiddlewareFactory implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
 

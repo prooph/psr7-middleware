@@ -22,7 +22,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class NoopMetadataGathererTest extends TestCase
 {
-
     /**
      * @test
      */
@@ -39,7 +38,7 @@ class NoopMetadataGathererTest extends TestCase
     public function it_return_array(): void
     {
         $gatherer = new NoopMetadataGatherer();
-        $request  = $this->prophesize(ServerRequestInterface::class);
+        $request = $this->prophesize(ServerRequestInterface::class);
 
         $this->assertInternalType('array', $gatherer->getFromRequest($request->reveal()));
         $this->assertEmpty($gatherer->getFromRequest($request->reveal()));

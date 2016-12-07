@@ -42,14 +42,14 @@ return [
                 // container/service id, see \Prooph\Common\Messaging\MessageFactory for more details
                 'message_factory' => \Prooph\Common\Messaging\FQCNMessageFactory::class,
                 // container/service id for the CommandBus instance, default CommandBus::class
-                'command_bus' => 'custom_command_bus'
+                'command_bus' => 'custom_command_bus',
             ],
             //This section will be used by \Prooph\Psr7Middleware\Container\EventMiddlewareFactory
             'event' => [
                 // container/service id, see \Prooph\Common\Messaging\MessageFactory for more details
                 'message_factory' => \Prooph\Common\Messaging\FQCNMessageFactory::class,
                 // container/service id for the EventBus instance, default EventBus::class
-                'event_bus' => 'custom_event_bus'
+                'event_bus' => 'custom_event_bus',
             ],
             //This section will be used by \Prooph\Psr7Middleware\Container\MessageMiddlewareFactory
             'message' => [
@@ -60,7 +60,7 @@ return [
                 // must have support for all bus types e.g. command, event and query
                 'message_factory' => 'custom_message_factory',
                 // container/service id for the MessageBus instance, default MessageBus::class
-                'message_bus' => 'custom_message_bus'
+                'message_bus' => 'custom_message_bus',
             ],
         ],
     ],

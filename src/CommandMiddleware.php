@@ -47,7 +47,6 @@ final class CommandMiddleware implements Middleware
      */
     private $commandFactory;
 
-
     /**
      * Gatherer of metadata from the request object
      *
@@ -82,7 +81,7 @@ final class CommandMiddleware implements Middleware
 
         try {
             $command = $this->commandFactory->createMessageFromArray($commandName, [
-                'payload'  => $request->getParsedBody(),
+                'payload' => $request->getParsedBody(),
                 'metadata' => $this->metadataGatherer->getFromRequest($request),
             ]);
 

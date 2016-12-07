@@ -20,8 +20,7 @@ use Prooph\Psr7Middleware\CommandMiddleware;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\ServiceBus\CommandBus;
 
-final class CommandMiddlewareFactory extends AbstractMiddlewareFactory
-    implements ProvidesDefaultOptions, RequiresMandatoryOptions
+final class CommandMiddlewareFactory extends AbstractMiddlewareFactory implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
 

@@ -20,8 +20,7 @@ use Prooph\Psr7Middleware\EventMiddleware;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\ServiceBus\EventBus;
 
-final class EventMiddlewareFactory extends AbstractMiddlewareFactory
-    implements ProvidesDefaultOptions, RequiresMandatoryOptions
+final class EventMiddlewareFactory extends AbstractMiddlewareFactory implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
 

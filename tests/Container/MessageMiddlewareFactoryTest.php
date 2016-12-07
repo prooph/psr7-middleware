@@ -65,9 +65,9 @@ class MessageMiddlewareFactoryTest extends TestCase
                 'middleware' => [
                     'message' => [
                         'message_factory' => 'custom_message_factory',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $factory($container->reveal());
@@ -109,9 +109,9 @@ class MessageMiddlewareFactoryTest extends TestCase
                     $configId => [
                         'message_factory' => 'custom_message_factory',
                         'response_strategy' => 'JsonResponseStrategy',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $container->has('custom_message_factory')->willReturn(true);

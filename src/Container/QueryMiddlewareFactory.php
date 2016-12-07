@@ -20,8 +20,7 @@ use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
 
-final class QueryMiddlewareFactory extends AbstractMiddlewareFactory
-    implements ProvidesDefaultOptions, RequiresMandatoryOptions
+final class QueryMiddlewareFactory extends AbstractMiddlewareFactory implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
 

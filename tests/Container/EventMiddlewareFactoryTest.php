@@ -62,9 +62,9 @@ class EventMiddlewareFactoryTest extends TestCase
             'prooph' => [
                 'middleware' => [
                     'event' => [
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $factory($container->reveal());
@@ -103,10 +103,10 @@ class EventMiddlewareFactoryTest extends TestCase
             'prooph' => [
                 'middleware' => [
                     $configId => [
-                        'message_factory' => 'custom_message_factory'
-                    ]
-                ]
-            ]
+                        'message_factory' => 'custom_message_factory',
+                    ],
+                ],
+            ],
         ]);
 
         $container->has('custom_message_factory')->willReturn(true);

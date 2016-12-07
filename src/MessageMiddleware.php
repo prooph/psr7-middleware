@@ -98,9 +98,11 @@ final class MessageMiddleware implements Middleware
             switch ($message->messageType()) {
                 case Message::TYPE_COMMAND:
                     $this->commandBus->dispatch($message);
+
                     return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
                 case Message::TYPE_EVENT:
                     $this->eventBus->dispatch($message);
+
                     return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
                 case Message::TYPE_QUERY:
                     return $this->responseStrategy->fromPromise(

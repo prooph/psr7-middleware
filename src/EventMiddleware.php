@@ -59,8 +59,8 @@ final class EventMiddleware implements Middleware
         MessageFactory $eventFactory,
         MetadataGatherer $metadataGatherer
     ) {
-        $this->eventBus         = $eventBus;
-        $this->eventFactory     = $eventFactory;
+        $this->eventBus = $eventBus;
+        $this->eventFactory = $eventFactory;
         $this->metadataGatherer = $metadataGatherer;
     }
 
@@ -81,7 +81,7 @@ final class EventMiddleware implements Middleware
 
         try {
             $event = $this->eventFactory->createMessageFromArray($eventName, [
-                'payload'  => $request->getParsedBody(),
+                'payload' => $request->getParsedBody(),
                 'metadata' => $this->metadataGatherer->getFromRequest($request),
             ]);
 
