@@ -101,10 +101,10 @@ class CommandMiddlewareFactoryTest extends TestCase
             'prooph' => [
                 'middleware' => [
                     $configId => [
-                        'message_factory' => 'custom_message_factory'
-                    ]
-                ]
-            ]
+                        'message_factory' => 'custom_message_factory',
+                    ],
+                ],
+            ],
         ];
 
         if (null !== $gatherer) {

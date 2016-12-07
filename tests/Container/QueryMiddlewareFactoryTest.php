@@ -116,9 +116,9 @@ class QueryMiddlewareFactoryTest extends TestCase
                     $configId => [
                         'message_factory' => 'custom_message_factory',
                         'response_strategy' => 'JsonResponseStrategy',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         if (null !== $gatherer) {
