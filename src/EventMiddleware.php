@@ -88,7 +88,7 @@ final class EventMiddleware implements Middleware
             $this->eventBus->dispatch($event);
 
             return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $next(
                 $request,
                 $response,

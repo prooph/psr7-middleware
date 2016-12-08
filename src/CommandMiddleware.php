@@ -88,7 +88,7 @@ final class CommandMiddleware implements Middleware
             $this->commandBus->dispatch($command);
 
             return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $next(
                 $request,
                 $response,

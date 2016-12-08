@@ -105,7 +105,7 @@ final class QueryMiddleware implements Middleware
             return $this->responseStrategy->fromPromise(
                 $this->queryBus->dispatch($query)
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $next(
                 $request,
                 $response,

@@ -130,7 +130,7 @@ final class MessageMiddleware implements Middleware
                     Middleware::STATUS_CODE_BAD_REQUEST,
                     $e
                 ));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $next(
                 $request,
                 $response,
