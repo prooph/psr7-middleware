@@ -1,11 +1,14 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of prooph/psr7-middleware.
+ * (c) 2016-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware;
 
@@ -62,13 +65,6 @@ final class MessageMiddleware implements Middleware
      */
     private $responseStrategy;
 
-    /**
-     * @param CommandBus $commandBus
-     * @param QueryBus $queryBus
-     * @param EventBus $eventBus
-     * @param MessageFactory $messageFactory
-     * @param ResponseStrategy $responseStrategy
-     */
     public function __construct(
         CommandBus $commandBus,
         QueryBus $queryBus,
@@ -83,9 +79,6 @@ final class MessageMiddleware implements Middleware
         $this->responseStrategy = $responseStrategy;
     }
 
-    /**
-     * @interitdoc
-     */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $payload = null;
@@ -105,9 +98,11 @@ final class MessageMiddleware implements Middleware
             switch ($message->messageType()) {
                 case Message::TYPE_COMMAND:
                     $this->commandBus->dispatch($message);
+
                     return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
                 case Message::TYPE_EVENT:
                     $this->eventBus->dispatch($message);
+
                     return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
                 case Message::TYPE_QUERY:
                     return $this->responseStrategy->fromPromise(

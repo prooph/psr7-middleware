@@ -1,27 +1,33 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of prooph/psr7-middleware.
+ * (c) 2016-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware\Container;
 
+use Interop\Config\Exception\MandatoryOptionNotFoundException;
 use Interop\Container\ContainerInterface;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\CommandMiddleware;
 use Prooph\Psr7Middleware\Container\CommandMiddlewareFactory;
+use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\ServiceBus\CommandBus;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class CommandMiddlewareFactoryTest extends TestCase
 {
     /**
      * @test
      */
-    public function it_implements_config_interop()
+    public function it_implements_config_interop(): void
     {
         $factory = new CommandMiddlewareFactory();
 
@@ -33,7 +39,7 @@ class CommandMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_command_middleware()
+    public function it_creates_command_middleware(): void
     {
         $factory = new CommandMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('command', null);
@@ -44,20 +50,10 @@ class CommandMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_command_middleware_with_another_gatherer()
+    public function it_throws_exception_if_option_is_missing(): void
     {
-        $factory = new CommandMiddlewareFactory();
-        $container = $this->getValidConfiguredContainer('command', new StubMetadataGatherer());
+        $this->expectException(MandatoryOptionNotFoundException::class);
 
-        self::assertInstanceOf(CommandMiddleware::class, $factory($container->reveal()));
-    }
-
-    /**
-     * @test
-     * @expectedException \Interop\Config\Exception\MandatoryOptionNotFoundException
-     */
-    public function it_throws_exception_if_option_is_missing()
-    {
         $factory = new CommandMiddlewareFactory();
         $container = $this->prophesize(ContainerInterface::class);
 
@@ -66,9 +62,9 @@ class CommandMiddlewareFactoryTest extends TestCase
             'prooph' => [
                 'middleware' => [
                     'command' => [
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $factory($container->reveal());
@@ -77,7 +73,7 @@ class CommandMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_command_middleware_from_static_call()
+    public function it_creates_command_middleware_from_static_call(): void
     {
         $container = $this->getValidConfiguredContainer('other_config_id', null);
 
@@ -87,20 +83,16 @@ class CommandMiddlewareFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Prooph\Psr7Middleware\Exception\InvalidArgumentException
-     * @expectedExceptionMessage The first argument must be of type Interop\Container\ContainerInterface
      */
-    public function it_throws_invalid_argument_exception_without_container_on_static_call()
+    public function it_throws_invalid_argument_exception_without_container_on_static_call(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The first argument must be of type Interop\Container\ContainerInterface');
+
         CommandMiddlewareFactory::other_config_id();
     }
 
-    /**
-     * @param string $configId
-     * @param StubMetadataGatherer|null $gatherer
-     * @return \Prophecy\Prophecy\ObjectProphecy
-     */
-    private function getValidConfiguredContainer($configId, $gatherer)
+    private function getValidConfiguredContainer(string $configId, ?StubMetadataGatherer $gatherer): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
         $messageFactory = $this->prophesize(MessageFactory::class);
@@ -109,10 +101,10 @@ class CommandMiddlewareFactoryTest extends TestCase
             'prooph' => [
                 'middleware' => [
                     $configId => [
-                        'message_factory' => 'custom_message_factory'
-                    ]
-                ]
-            ]
+                        'message_factory' => 'custom_message_factory',
+                    ],
+                ],
+            ],
         ];
 
         if (null !== $gatherer) {

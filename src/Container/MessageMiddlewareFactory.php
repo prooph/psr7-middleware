@@ -1,11 +1,14 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of prooph/psr7-middleware.
+ * (c) 2016-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware\Container;
 
@@ -18,26 +21,16 @@ use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 
-final class MessageMiddlewareFactory extends AbstractMiddlewareFactory
-    implements ProvidesDefaultOptions, RequiresMandatoryOptions
+final class MessageMiddlewareFactory extends AbstractMiddlewareFactory implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {
     use ConfigurationTrait;
 
-    /**
-     * @param string $configId
-     */
-    public function __construct($configId = 'message')
+    public function __construct(string $configId = 'message')
     {
         parent::__construct($configId);
     }
 
-    /**
-     * Create service.
-     *
-     * @param ContainerInterface $container
-     * @return MessageMiddleware
-     */
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container): MessageMiddleware
     {
         $options = $this->options($container->get('config'), $this->configId);
 
@@ -50,10 +43,7 @@ final class MessageMiddlewareFactory extends AbstractMiddlewareFactory
         );
     }
 
-    /**
-     * @interitdoc
-     */
-    public function defaultOptions()
+    public function defaultOptions(): array
     {
         return [
             'command_bus' => CommandBus::class,
@@ -62,10 +52,7 @@ final class MessageMiddlewareFactory extends AbstractMiddlewareFactory
         ];
     }
 
-    /**
-     * @interitdoc
-     */
-    public function mandatoryOptions()
+    public function mandatoryOptions(): iterable
     {
         return ['message_factory', 'response_strategy'];
     }

@@ -1,11 +1,14 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of prooph/psr7-middleware.
+ * (c) 2016-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware\Container;
 
@@ -39,33 +42,26 @@ abstract class AbstractMiddlewareFactory implements RequiresConfigId
      * ];
      * </code>
      *
-     * @param string $name
-     * @param array $arguments
      * @return mixed
      * @throws InvalidArgumentException
      */
-    public static function __callStatic($name, array $arguments)
+    public static function __callStatic(string $name, array $arguments)
     {
-        if (!isset($arguments[0]) || !$arguments[0] instanceof ContainerInterface) {
+        if (! isset($arguments[0]) || ! $arguments[0] instanceof ContainerInterface) {
             throw new InvalidArgumentException(
                 sprintf('The first argument must be of type %s', ContainerInterface::class)
             );
         }
+
         return (new static($name))->__invoke($arguments[0]);
     }
 
-    /**
-     * @param string $configId
-     */
-    public function __construct($configId)
+    public function __construct(string $configId)
     {
         // ensure BC
         $this->configId = method_exists($this, 'containerId') ? $this->containerId() : $configId;
     }
 
-    /**
-     * @interitdoc
-     */
     public function dimensions()
     {
         return ['prooph', 'middleware'];

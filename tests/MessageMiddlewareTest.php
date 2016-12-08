@@ -1,15 +1,18 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of prooph/psr7-middleware.
+ * (c) 2016-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\MessageMiddleware;
@@ -31,7 +34,7 @@ class MessageMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_message_is_not_well_formed()
+    public function it_calls_next_with_exception_if_message_is_not_well_formed(): void
     {
         $commandBus = $this->prophesize(CommandBus::class);
         $commandBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
@@ -68,7 +71,7 @@ class MessageMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_message_type_is_unknown()
+    public function it_calls_next_with_exception_if_message_type_is_unknown(): void
     {
         $payload = $this->getPayload('unknown');
 
@@ -113,12 +116,7 @@ class MessageMiddlewareTest extends TestCase
         $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
     }
 
-    /**
-     * List of message types
-     *
-     * @return array
-     */
-    public function providerMessageTypes()
+    public function providerMessageTypes(): array
     {
         return [
             [Message::TYPE_COMMAND],
@@ -131,7 +129,7 @@ class MessageMiddlewareTest extends TestCase
      * @test
      * @dataProvider providerMessageTypes
      */
-    public function it_calls_next_with_exception_if_dispatch_failed($messageType)
+    public function it_calls_next_with_exception_if_dispatch_failed(string $messageType): void
     {
         $payload = $this->getPayload('name.' . $messageType);
 
@@ -203,7 +201,7 @@ class MessageMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_the_command()
+    public function it_dispatches_the_command(): void
     {
         $payload = $this->getPayload('command');
 
@@ -250,7 +248,7 @@ class MessageMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_the_event()
+    public function it_dispatches_the_event(): void
     {
         $payload = $this->getPayload('event');
 
@@ -297,7 +295,7 @@ class MessageMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_the_query()
+    public function it_dispatches_the_query(): void
     {
         $payload = $this->getPayload('query');
 
@@ -345,11 +343,8 @@ class MessageMiddlewareTest extends TestCase
 
     /**
      * Returns a full configured payload array
-     *
-     * @param $messageName
-     * @return array
      */
-    private function getPayload($messageName)
+    private function getPayload(string $messageName): array
     {
         return [
             'message_name' => $messageName,

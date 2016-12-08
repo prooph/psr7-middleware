@@ -1,11 +1,14 @@
 <?php
 /**
- * prooph (http://getprooph.org/)
+ * This file is part of prooph/psr7-middleware.
+ * (c) 2016-2016 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2016 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
- * @see       https://github.com/prooph/psr7-middleware for the canonical source repository
- * @copyright Copyright (c) 2016 prooph software GmbH (http://prooph-software.com/)
- * @license   https://github.com/prooph/psr7-middleware/blob/master/LICENSE New BSD License
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+
+declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware;
 
@@ -44,7 +47,6 @@ final class CommandMiddleware implements Middleware
      */
     private $commandFactory;
 
-
     /**
      * Gatherer of metadata from the request object
      *
@@ -52,11 +54,6 @@ final class CommandMiddleware implements Middleware
      */
     private $metadataGatherer;
 
-    /**
-     * @param CommandBus $commandBus Dispatches command
-     * @param MessageFactory $commandFactory Creates message depending on command name
-     * @param MetadataGatherer $metadataGatherer Gatherer of metadata
-     */
     public function __construct(
         CommandBus $commandBus,
         MessageFactory $commandFactory,
@@ -67,9 +64,6 @@ final class CommandMiddleware implements Middleware
         $this->metadataGatherer = $metadataGatherer;
     }
 
-    /**
-     * @interitdoc
-     */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $commandName = $request->getAttribute(self::NAME_ATTRIBUTE);
@@ -87,7 +81,7 @@ final class CommandMiddleware implements Middleware
 
         try {
             $command = $this->commandFactory->createMessageFromArray($commandName, [
-                'payload'  => $request->getParsedBody(),
+                'payload' => $request->getParsedBody(),
                 'metadata' => $this->metadataGatherer->getFromRequest($request),
             ]);
 
