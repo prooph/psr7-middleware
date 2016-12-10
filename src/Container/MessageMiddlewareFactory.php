@@ -43,7 +43,7 @@ final class MessageMiddlewareFactory extends AbstractMiddlewareFactory implement
         );
     }
 
-    public function defaultOptions(): array
+    public function defaultOptions(): iterable
     {
         return [
             'command_bus' => CommandBus::class,

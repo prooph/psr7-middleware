@@ -46,7 +46,7 @@ final class EventMiddlewareFactory extends AbstractMiddlewareFactory implements 
         );
     }
 
-    public function defaultOptions(): array
+    public function defaultOptions(): iterable
     {
         return ['event_bus' => EventBus::class];
     }
