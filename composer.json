@@ -38,8 +38,8 @@
   "prefer-stable": true,
   "require": {
     "php": "^7.1",
-    "prooph/common": "4.0.x-dev",
-    "prooph/service-bus" : "6.0.x-dev",
+    "prooph/common": "^4.0.0-beta",
+    "prooph/service-bus" : "^6.0.0-beta",
     "psr/http-message": "^1.0",
     "react/promise" : "^2.2"
   },
