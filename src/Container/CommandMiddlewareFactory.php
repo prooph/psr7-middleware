@@ -15,10 +15,10 @@ namespace Prooph\Psr7Middleware\Container;
 use Interop\Config\ConfigurationTrait;
 use Interop\Config\ProvidesDefaultOptions;
 use Interop\Config\RequiresMandatoryOptions;
-use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\CommandMiddleware;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\ServiceBus\CommandBus;
+use Psr\Container\ContainerInterface;
 
 final class CommandMiddlewareFactory extends AbstractMiddlewareFactory implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {

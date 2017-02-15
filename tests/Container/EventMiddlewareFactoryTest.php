@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace ProophTest\Psr7Middleware\Container;
 
 use Interop\Config\Exception\MandatoryOptionNotFoundException;
-use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\EventMiddlewareFactory;
@@ -21,6 +20,7 @@ use Prooph\Psr7Middleware\EventMiddleware;
 use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\ServiceBus\EventBus;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Container\ContainerInterface;
 
 class EventMiddlewareFactoryTest extends TestCase
 {
@@ -98,7 +98,7 @@ class EventMiddlewareFactoryTest extends TestCase
     public function it_throws_invalid_argument_exception_without_container_on_static_call(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The first argument must be of type Interop\Container\ContainerInterface');
+        $this->expectExceptionMessage('The first argument must be of type Psr\Container\ContainerInterface');
 
         EventMiddlewareFactory::other_config_id();
     }

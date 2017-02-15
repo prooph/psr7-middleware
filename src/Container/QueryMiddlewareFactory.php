@@ -15,10 +15,10 @@ namespace Prooph\Psr7Middleware\Container;
 use Interop\Config\ConfigurationTrait;
 use Interop\Config\ProvidesDefaultOptions;
 use Interop\Config\RequiresMandatoryOptions;
-use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\NoopMetadataGatherer;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
+use Psr\Container\ContainerInterface;
 
 final class QueryMiddlewareFactory extends AbstractMiddlewareFactory implements ProvidesDefaultOptions, RequiresMandatoryOptions
 {

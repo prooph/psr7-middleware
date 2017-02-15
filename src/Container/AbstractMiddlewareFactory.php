@@ -14,8 +14,8 @@ namespace Prooph\Psr7Middleware\Container;
 
 use Interop\Config\ConfigurationTrait;
 use Interop\Config\RequiresConfigId;
-use Interop\Container\ContainerInterface;
 use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
+use Psr\Container\ContainerInterface;
 
 /**
  * Base class for factories
