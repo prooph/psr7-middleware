@@ -18,12 +18,12 @@ use React\Promise\PromiseInterface;
 /**
  * Generate HTTP response depending on Promise result data
  *
- * This is an example how to generate a JsonResponse from a React\Promise\Promise
+ * This is an example how to generate a JsonResponse from a React\Promise\PromiseInterface
  *
  * <code>
  * final class JsonResponse implements ResponseStrategy
  * {
- *     public function fromPromise(\React\Promise\Promise $promise)
+ *     public function fromPromise(\React\Promise\PromiseInterface $promise)
  *     {
  *         $data = null;
  *
