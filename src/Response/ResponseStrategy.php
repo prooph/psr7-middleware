@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Prooph\Psr7Middleware\Response;
 
 use Psr\Http\Message\ResponseInterface;
-use React\Promise\Promise;
+use React\Promise\PromiseInterface;
 
 /**
  * Generate HTTP response depending on Promise result data
@@ -38,5 +38,5 @@ use React\Promise\Promise;
  */
 interface ResponseStrategy
 {
-    public function fromPromise(Promise $promise): ResponseInterface;
+    public function fromPromise(PromiseInterface $promise): ResponseInterface;
 }
