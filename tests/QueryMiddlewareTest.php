@@ -12,11 +12,12 @@ declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
+use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Prooph\Psr7Middleware\MetadataGatherer;
-use Prooph\Psr7Middleware\Middleware;
 use Prooph\Psr7Middleware\QueryMiddleware;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\QueryBus;
@@ -33,7 +34,7 @@ class QueryMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_query_name_attribute_is_not_set(): void
+    public function it_throws_exception_if_query_name_attribute_is_not_set(): void
     {
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
@@ -46,27 +47,29 @@ class QueryMiddlewareTest extends TestCase
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getAttribute(QueryMiddleware::NAME_ATTRIBUTE)->willReturn(null)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
-
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->shouldNotBeCalled();
 
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Query name attribute ("%s") was not found in request.', QueryMiddleware::NAME_ATTRIBUTE));
+
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_dispatch_failed(): void
+    public function it_throws_exception_if_dispatch_failed(): void
     {
         $queryName = 'stdClass';
         $payload = ['user_id' => 123];
 
         $queryBus = $this->prophesize(QueryBus::class);
-        $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willThrow(
+        $queryBus->dispatch(Argument::type(Message::class))->willThrow(
             new \Exception('Error')
         );
 
@@ -89,15 +92,17 @@ class QueryMiddlewareTest extends TestCase
         $request->getQueryParams()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(QueryMiddleware::NAME_ATTRIBUTE)->willReturn($queryName)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
-
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
 
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('An error occurred during dispatching of query "stdClass"');
+
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
@@ -124,22 +129,24 @@ class QueryMiddlewareTest extends TestCase
             ->willReturn($message->reveal())
             ->shouldBeCalled();
 
-        $responseStrategy = $this->prophesize(ResponseStrategy::class);
-        $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldBeCalled();
-
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getMethod()->shouldBeCalled();
         $request->getQueryParams()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(QueryMiddleware::NAME_ATTRIBUTE)->willReturn($queryName)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Argument::type('integer'))->shouldNotBeCalled();
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->fromPromise(Argument::type(Promise::class))->willReturn($response);
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request)->shouldBeCalled();
 
+        $delegate = $this->prophesize(DelegateInterface::class);
+
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
-        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
     }
 
     /**
@@ -167,9 +174,6 @@ class QueryMiddlewareTest extends TestCase
             ->willReturn($message->reveal())
             ->shouldBeCalled();
 
-        $responseStrategy = $this->prophesize(ResponseStrategy::class);
-        $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldBeCalled();
-
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getMethod()->willReturn('POST')->shouldBeCalled();
         $request->getParsedBody()->willReturn($parsedBody)->shouldBeCalled();
@@ -177,12 +181,17 @@ class QueryMiddlewareTest extends TestCase
         $request->getAttribute(QueryMiddleware::NAME_ATTRIBUTE)->willReturn($queryName)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Argument::type('integer'))->shouldNotBeCalled();
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->fromPromise(Argument::type(Promise::class))->willReturn($response);
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request)->shouldBeCalled();
 
+        $delegate = $this->prophesize(DelegateInterface::class);
+
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
-        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
     }
 }

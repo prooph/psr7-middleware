@@ -18,6 +18,7 @@ use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\EventMiddlewareFactory;
 use Prooph\Psr7Middleware\EventMiddleware;
 use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\EventBus;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
@@ -44,7 +45,7 @@ class EventMiddlewareFactoryTest extends TestCase
         $factory = new EventMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('event', null);
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(EventMiddleware::class, $factory($container->reveal()));
     }
 
     /**
@@ -55,7 +56,7 @@ class EventMiddlewareFactoryTest extends TestCase
         $factory = new EventMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('event', new StubMetadataGatherer());
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(EventMiddleware::class, $factory($container->reveal()));
     }
 
     /**
@@ -78,7 +79,7 @@ class EventMiddlewareFactoryTest extends TestCase
             ],
         ]);
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(EventMiddleware::class, $factory($container->reveal()));
     }
 
     /**
@@ -106,6 +107,7 @@ class EventMiddlewareFactoryTest extends TestCase
     private function getValidConfiguredContainer(string $configId, ?StubMetadataGatherer $gatherer): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
+        $strategy = $this->prophesize(ResponseStrategy::class);
         $messageFactory = $this->prophesize(MessageFactory::class);
 
         $config = [
@@ -113,6 +115,7 @@ class EventMiddlewareFactoryTest extends TestCase
                 'middleware' => [
                     $configId => [
                         'message_factory' => 'custom_message_factory',
+                        'response_strategy' => 'JsonResponseStrategy',
                     ],
                 ],
             ],
@@ -128,6 +131,8 @@ class EventMiddlewareFactoryTest extends TestCase
 
         $container->has('custom_message_factory')->willReturn(true);
         $container->get('custom_message_factory')->willReturn($messageFactory);
+        $container->has('JsonResponseStrategy')->willReturn(true);
+        $container->get('JsonResponseStrategy')->willReturn($strategy);
         $container->has(EventBus::class)->willReturn(true);
         $container->get(EventBus::class)->willReturn($this->prophesize(EventBus::class));
 

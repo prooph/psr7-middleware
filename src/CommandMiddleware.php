@@ -12,10 +12,13 @@ declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware;
 
+use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Exception\RuntimeException;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -24,14 +27,14 @@ use Psr\Http\Message\ServerRequestInterface;
  * The CommandBus is designed to dispatch a message to only one handler or message producer. It does not return a
  * result. Sending a command means fire and forget and enforces the Tell-Don't-Ask principle.
  */
-final class CommandMiddleware implements Middleware
+final class CommandMiddleware implements MiddlewareInterface
 {
     /**
      * Identifier to execute specific command
      *
      * @var string
      */
-    const NAME_ATTRIBUTE = 'prooph_command_name';
+    public const NAME_ATTRIBUTE = 'prooph_command_name';
 
     /**
      * Dispatches command
@@ -54,28 +57,33 @@ final class CommandMiddleware implements Middleware
      */
     private $metadataGatherer;
 
+    /**
+     * Generate HTTP response with status code
+     *
+     * @var ResponseStrategy
+     */
+    private $responseStrategy;
+
     public function __construct(
         CommandBus $commandBus,
         MessageFactory $commandFactory,
-        MetadataGatherer $metadataGatherer
+        MetadataGatherer $metadataGatherer,
+        ResponseStrategy $responseStrategy
     ) {
         $this->commandBus = $commandBus;
         $this->commandFactory = $commandFactory;
         $this->metadataGatherer = $metadataGatherer;
+        $this->responseStrategy = $responseStrategy;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $commandName = $request->getAttribute(self::NAME_ATTRIBUTE);
 
         if (null === $commandName) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    sprintf('Command name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
-                    Middleware::STATUS_CODE_BAD_REQUEST
-                )
+            throw new RuntimeException(
+                sprintf('Command name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
+                StatusCodeInterface::STATUS_BAD_REQUEST
             );
         }
 
@@ -87,16 +95,12 @@ final class CommandMiddleware implements Middleware
 
             $this->commandBus->dispatch($command);
 
-            return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
+            return $this->responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
         } catch (\Throwable $e) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    sprintf('An error occurred during dispatching of command "%s"', $commandName),
-                    Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR,
-                    $e
-                )
+            throw new RuntimeException(
+                sprintf('An error occurred during dispatching of command "%s"', $commandName),
+                StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
     }

@@ -7,7 +7,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware\Response;
@@ -16,14 +15,14 @@ use Psr\Http\Message\ResponseInterface;
 use React\Promise\PromiseInterface;
 
 /**
- * Generate HTTP response depending on Promise result data
+ * Generates HTTP responses.
  *
- * This is an example how to generate a JsonResponse from a React\Promise\PromiseInterface
+ * This is an example how to generate valid JsonResponses:
  *
  * <code>
  * final class JsonResponse implements ResponseStrategy
  * {
- *     public function fromPromise(\React\Promise\PromiseInterface $promise)
+ *     public function fromPromise(\React\Promise\PromiseInterface $promise): ResponseInterface
  *     {
  *         $data = null;
  *
@@ -33,10 +32,23 @@ use React\Promise\PromiseInterface;
  *
  *         return new \Zend\Diactoros\Response\JsonResponse($data);
  *     }
+ *
+ *     public function withStatus(int $statusCode): ResponseInterface
+ *     {
+ *         return new \Zend\Diactoros\Response\JsonResponse([], $statusCode);
+ *     }
  * }
  * </code>
  */
 interface ResponseStrategy
 {
+    /**
+     * Generates a valid HTTP response with result data from Promise object
+     */
     public function fromPromise(PromiseInterface $promise): ResponseInterface;
+
+    /**
+     * Generates a valid HTTP response with given status code.
+     */
+    public function withStatus(int $statusCode): ResponseInterface;
 }

@@ -18,6 +18,7 @@ use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\CommandMiddleware;
 use Prooph\Psr7Middleware\Container\CommandMiddlewareFactory;
 use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
@@ -95,6 +96,7 @@ class CommandMiddlewareFactoryTest extends TestCase
     private function getValidConfiguredContainer(string $configId, ?StubMetadataGatherer $gatherer): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
+        $strategy = $this->prophesize(ResponseStrategy::class);
         $messageFactory = $this->prophesize(MessageFactory::class);
 
         $config = [
@@ -102,6 +104,7 @@ class CommandMiddlewareFactoryTest extends TestCase
                 'middleware' => [
                     $configId => [
                         'message_factory' => 'custom_message_factory',
+                        'response_strategy' => 'JsonResponseStrategy',
                     ],
                 ],
             ],
@@ -117,6 +120,8 @@ class CommandMiddlewareFactoryTest extends TestCase
 
         $container->has('custom_message_factory')->willReturn(true);
         $container->get('custom_message_factory')->willReturn($messageFactory);
+        $container->has('JsonResponseStrategy')->willReturn(true);
+        $container->get('JsonResponseStrategy')->willReturn($strategy);
         $container->has(CommandBus::class)->willReturn(true);
         $container->get(CommandBus::class)->willReturn($this->prophesize(CommandBus::class));
 

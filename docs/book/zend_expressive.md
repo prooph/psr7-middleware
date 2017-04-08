@@ -9,22 +9,17 @@ example app.
 Here is an example for the `AuraRouter` to call the `CommandMiddleware` for the `register-user` command.
 
 ```php
-return [
-    'routes' => [
-        [
-            'name' => 'command::register-user',
-            'path' => '/api/commands/register-user',
-            'middleware' => \Prooph\Psr7Middleware\CommandMiddleware::class,
-            'allowed_methods' => ['POST'],
-            'options' => [
-                'values' => [
-                    // \Prooph\Common\Messaging\FQCNMessageFactory is used here
-                    \Prooph\Psr7Middleware\CommandMiddleware::NAME_ATTRIBUTE => \Prooph\ProophessorDo\Model\User\Command\RegisterUser::class,
-                ]
-            ]
+// routes.php
+
+/** @var \Zend\Expressive\Application $app */
+$app->post('/api/commands/register-user', [
+    \Prooph\Psr7Middleware\CommandMiddleware::class,
+], 'command::register-user')
+    ->setOptions([
+        'values' => [
+            \Prooph\Psr7Middleware\CommandMiddleware::NAME_ATTRIBUTE => \Prooph\ProophessorDo\Model\User\Command\RegisterUser::class,
         ],
-    ],
-];
+    ]);
 ```
 
 ## Metadata Gatherer

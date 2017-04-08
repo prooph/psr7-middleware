@@ -42,7 +42,8 @@ final class CommandMiddlewareFactory extends AbstractMiddlewareFactory implement
         return new CommandMiddleware(
             $container->get($options['command_bus']),
             $container->get($options['message_factory']),
-            $gatherer
+            $gatherer,
+            $container->get($options['response_strategy'])
         );
     }
 

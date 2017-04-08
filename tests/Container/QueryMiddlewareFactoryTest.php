@@ -44,7 +44,7 @@ class QueryMiddlewareFactoryTest extends TestCase
         $factory = new QueryMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('query', null);
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(QueryMiddleware::class, $factory($container->reveal()));
     }
 
     /**
@@ -55,7 +55,7 @@ class QueryMiddlewareFactoryTest extends TestCase
         $factory = new QueryMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('query', new StubMetadataGatherer());
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(QueryMiddleware::class, $factory($container->reveal()));
     }
 
     /**
@@ -79,7 +79,7 @@ class QueryMiddlewareFactoryTest extends TestCase
             ],
         ]);
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(QueryMiddleware::class, $factory($container->reveal()));
     }
 
     /**

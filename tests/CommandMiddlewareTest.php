@@ -12,12 +12,15 @@ declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
+use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\CommandMiddleware;
+use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Prooph\Psr7Middleware\MetadataGatherer;
-use Prooph\Psr7Middleware\Middleware;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
@@ -31,7 +34,7 @@ class CommandMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_command_name_attribute_is_not_set(): void
+    public function it_throws_exception_if_command_name_attribute_is_not_set(): void
     {
         $commandBus = $this->prophesize(CommandBus::class);
         $commandBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
@@ -41,27 +44,32 @@ class CommandMiddlewareTest extends TestCase
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getAttribute(CommandMiddleware::NAME_ATTRIBUTE)->willReturn(null)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
-
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request)->shouldNotBeCalled();
 
-        $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Command name attribute ("%s") was not found in request.', CommandMiddleware::NAME_ATTRIBUTE));
+
+        $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
+
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_dispatch_failed(): void
+    public function it_throws_exception_if_dispatch_failed(): void
     {
         $commandName = 'stdClass';
         $payload = ['user_id' => 123];
 
         $commandBus = $this->prophesize(CommandBus::class);
-        $commandBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willThrow(
+        $commandBus->dispatch(Argument::type(Message::class))->willThrow(
             new \Exception('Error')
         );
 
@@ -73,22 +81,26 @@ class CommandMiddlewareTest extends TestCase
                 $commandName,
                 ['payload' => $payload, 'metadata' => []]
             )
-            ->willReturn($message->reveal())
-            ->shouldBeCalled();
+            ->willReturn($message->reveal());
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(CommandMiddleware::NAME_ATTRIBUTE)->willReturn($commandName);
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
-
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
+        $gatherer->getFromRequest($request)->shouldNotBeCalled();
 
-        $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+        $this->expectExceptionMessage('An error occurred during dispatching of command "stdClass"');
+
+        $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
+
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
@@ -117,13 +129,17 @@ class CommandMiddlewareTest extends TestCase
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(CommandMiddleware::NAME_ATTRIBUTE)->willReturn($commandName)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_ACCEPTED)->shouldBeCalled();
-
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
 
-        $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
-        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+        $response = $this->prophesize(ResponseInterface::class);
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
+
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
     }
 }
