@@ -12,12 +12,15 @@ declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
+use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\EventMiddleware;
+use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Prooph\Psr7Middleware\MetadataGatherer;
-use Prooph\Psr7Middleware\Middleware;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\EventBus;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
@@ -31,7 +34,7 @@ class EventMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_event_name_attribute_is_not_set(): void
+    public function it_throws_exception_if_event_name_attribute_is_not_set(): void
     {
         $eventBus = $this->prophesize(EventBus::class);
         $eventBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
@@ -41,27 +44,32 @@ class EventMiddlewareTest extends TestCase
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getAttribute(EventMiddleware::NAME_ATTRIBUTE)->willReturn(null)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
-
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request)->shouldNotBeCalled();
 
-        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Event name attribute ("%s") was not found in request.', EventMiddleware::NAME_ATTRIBUTE));
+
+        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
+
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_dispatch_failed(): void
+    public function it_throws_exception_if_dispatch_failed(): void
     {
         $eventName = 'stdClass';
         $payload = ['user_id' => 123];
 
         $eventBus = $this->prophesize(EventBus::class);
-        $eventBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willThrow(
+        $eventBus->dispatch(Argument::type(Message::class))->willThrow(
             new \Exception('Error')
         );
 
@@ -73,22 +81,27 @@ class EventMiddlewareTest extends TestCase
                 $eventName,
                 ['payload' => $payload, 'metadata' => []]
             )
-            ->willReturn($message->reveal())
-            ->shouldBeCalled();
+            ->willReturn($message->reveal());
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(EventMiddleware::NAME_ATTRIBUTE)->willReturn($eventName)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
-
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request)->shouldBeCalled();
 
-        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+        $this->expectExceptionMessage('An error occurred during dispatching of event "stdClass"');
+
+        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
+
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
@@ -118,12 +131,16 @@ class EventMiddlewareTest extends TestCase
         $request->getAttribute(EventMiddleware::NAME_ATTRIBUTE)->willReturn($eventName)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_ACCEPTED)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldBeCalled();
+        $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
 
-        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal());
-        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
+
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
     }
 }

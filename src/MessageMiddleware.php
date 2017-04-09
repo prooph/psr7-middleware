@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware;
 
+use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageDataAssertion;
 use Prooph\Common\Messaging\MessageFactory;
@@ -20,7 +23,6 @@ use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -28,7 +30,7 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * This class handles event, command and query messages depending on given request body data.
  */
-final class MessageMiddleware implements Middleware
+final class MessageMiddleware implements MiddlewareInterface
 {
     /**
      * Dispatches command
@@ -79,7 +81,7 @@ final class MessageMiddleware implements Middleware
         $this->responseStrategy = $responseStrategy;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $payload = null;
         $messageName = 'UNKNOWN';
@@ -99,46 +101,36 @@ final class MessageMiddleware implements Middleware
                 case Message::TYPE_COMMAND:
                     $this->commandBus->dispatch($message);
 
-                    return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
+                    return $this->responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
                 case Message::TYPE_EVENT:
                     $this->eventBus->dispatch($message);
 
-                    return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
+                    return $this->responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
                 case Message::TYPE_QUERY:
                     return $this->responseStrategy->fromPromise(
                         $this->queryBus->dispatch($message)
                     );
                 default:
-                    return $next(
-                        $request,
-                        $response,
-                        new RuntimeException(
-                            sprintf(
-                                'Invalid message type "%s" for message "%s".',
-                                $message->messageType(),
-                                $messageName
-                            ),
-                            Middleware::STATUS_CODE_BAD_REQUEST
-                        ));
+                    throw new RuntimeException(
+                        sprintf(
+                            'Invalid message type "%s" for message "%s".',
+                            $message->messageType(),
+                            $messageName
+                        ),
+                        StatusCodeInterface::STATUS_BAD_REQUEST
+                    );
             }
         } catch (\Assert\InvalidArgumentException $e) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    $e->getMessage(),
-                    Middleware::STATUS_CODE_BAD_REQUEST,
-                    $e
-                ));
+            throw new RuntimeException(
+                $e->getMessage(),
+                StatusCodeInterface::STATUS_BAD_REQUEST,
+                $e
+            );
         } catch (\Throwable $e) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    sprintf('An error occurred during dispatching of message "%s"', $messageName),
-                    Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR,
-                    $e
-                )
+            throw new RuntimeException(
+                sprintf('An error occurred during dispatching of message "%s"', $messageName),
+                StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
     }

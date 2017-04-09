@@ -12,10 +12,13 @@ declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware;
 
+use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Exception\RuntimeException;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\EventBus;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -24,14 +27,14 @@ use Psr\Http\Message\ServerRequestInterface;
  * The EventBus is able to dispatch a message to n listeners. Each listener can be a message handler or message
  * producer. Like commands the EventBus doesn't return anything.
  */
-final class EventMiddleware implements Middleware
+final class EventMiddleware implements MiddlewareInterface
 {
     /**
      * Identifier to execute specific event
      *
      * @var string
      */
-    const NAME_ATTRIBUTE = 'prooph_event_name';
+    public const NAME_ATTRIBUTE = 'prooph_event_name';
 
     /**
      * Dispatches event
@@ -54,28 +57,33 @@ final class EventMiddleware implements Middleware
      */
     private $metadataGatherer;
 
+    /**
+     * Generate HTTP response with status code
+     *
+     * @var ResponseStrategy
+     */
+    private $responseStrategy;
+
     public function __construct(
         EventBus $eventBus,
         MessageFactory $eventFactory,
-        MetadataGatherer $metadataGatherer
+        MetadataGatherer $metadataGatherer,
+        ResponseStrategy $responseStrategy
     ) {
         $this->eventBus = $eventBus;
         $this->eventFactory = $eventFactory;
         $this->metadataGatherer = $metadataGatherer;
+        $this->responseStrategy = $responseStrategy;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $eventName = $request->getAttribute(self::NAME_ATTRIBUTE);
 
         if (null === $eventName) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    sprintf('Event name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
-                    Middleware::STATUS_CODE_BAD_REQUEST
-                )
+            throw new RuntimeException(
+                sprintf('Event name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
+                StatusCodeInterface::STATUS_BAD_REQUEST
             );
         }
 
@@ -87,16 +95,12 @@ final class EventMiddleware implements Middleware
 
             $this->eventBus->dispatch($event);
 
-            return $response->withStatus(Middleware::STATUS_CODE_ACCEPTED);
+            return $this->responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
         } catch (\Throwable $e) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    sprintf('An error occurred during dispatching of event "%s"', $eventName),
-                    Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR,
-                    $e
-                )
+            throw new RuntimeException(
+                sprintf('An error occurred during dispatching of event "%s"', $eventName),
+                StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
     }

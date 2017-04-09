@@ -18,6 +18,7 @@ use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Container\MessageMiddlewareFactory;
 use Prooph\Psr7Middleware\Exception\InvalidArgumentException;
 use Prooph\Psr7Middleware\MessageMiddleware;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
@@ -46,7 +47,7 @@ class MessageMiddlewareFactoryTest extends TestCase
         $factory = new MessageMiddlewareFactory();
         $container = $this->getValidConfiguredContainer('message');
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(MessageMiddleware::class, $factory($container->reveal()));
     }
 
     /**
@@ -70,7 +71,7 @@ class MessageMiddlewareFactoryTest extends TestCase
             ],
         ]);
 
-        $factory($container->reveal());
+        $this->assertInstanceOf(MessageMiddleware::class, $factory($container->reveal()));
     }
 
     /**
@@ -98,7 +99,7 @@ class MessageMiddlewareFactoryTest extends TestCase
     private function getValidConfiguredContainer(string $configId): ObjectProphecy
     {
         $container = $this->prophesize(ContainerInterface::class);
-        $strategy = $this->prophesize(\Prooph\Psr7Middleware\Response\ResponseStrategy::class);
+        $strategy = $this->prophesize(ResponseStrategy::class);
         $messageFactory = $this->prophesize(MessageFactory::class);
 
         $container->has('config')->willReturn(true);

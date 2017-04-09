@@ -42,7 +42,8 @@ final class EventMiddlewareFactory extends AbstractMiddlewareFactory implements 
         return new EventMiddleware(
             $container->get($options['event_bus']),
             $container->get($options['message_factory']),
-            $gatherer
+            $gatherer,
+            $container->get($options['response_strategy'])
         );
     }
 

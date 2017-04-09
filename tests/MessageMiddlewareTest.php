@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
+use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
+use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Prooph\Psr7Middleware\MessageMiddleware;
-use Prooph\Psr7Middleware\Middleware;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
@@ -34,7 +36,7 @@ class MessageMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_message_is_not_well_formed(): void
+    public function it_throws_exception_if_message_is_not_well_formed(): void
     {
         $commandBus = $this->prophesize(CommandBus::class);
         $commandBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
@@ -50,12 +52,15 @@ class MessageMiddlewareTest extends TestCase
 
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
+        $responseStrategy->withStatus(Argument::any())->shouldNotBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn(['message_name' => 'test'])->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('MessageData must contain a key uuid');
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -65,13 +70,13 @@ class MessageMiddlewareTest extends TestCase
             $responseStrategy->reveal()
         );
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
      * @test
      */
-    public function it_calls_next_with_exception_if_message_type_is_unknown(): void
+    public function it_thows_exception_if_message_type_is_unknown(): void
     {
         $payload = $this->getPayload('unknown');
 
@@ -98,12 +103,15 @@ class MessageMiddlewareTest extends TestCase
 
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
+        $responseStrategy->withStatus(Argument::any())->shouldNotBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_BAD_REQUEST)->shouldBeCalled();
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('An error occurred during dispatching of message "unknown"');
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -113,7 +121,7 @@ class MessageMiddlewareTest extends TestCase
             $responseStrategy->reveal()
         );
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     public function providerMessageTypes(): array
@@ -129,7 +137,7 @@ class MessageMiddlewareTest extends TestCase
      * @test
      * @dataProvider providerMessageTypes
      */
-    public function it_calls_next_with_exception_if_dispatch_failed(string $messageType): void
+    public function it_throws_exception_if_dispatch_failed(string $messageType): void
     {
         $payload = $this->getPayload('name.' . $messageType);
 
@@ -180,12 +188,15 @@ class MessageMiddlewareTest extends TestCase
 
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
+        $responseStrategy->withStatus(Argument::any())->shouldNotBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
 
-        $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR)->shouldBeCalled();
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionCode(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -195,7 +206,7 @@ class MessageMiddlewareTest extends TestCase
             $responseStrategy->reveal()
         );
 
-        $middleware($request->reveal(), $response->reveal(), Helper::callableWithExceptionResponse());
+        $middleware->process($request->reveal(), $delegate->reveal());
     }
 
     /**
@@ -226,14 +237,15 @@ class MessageMiddlewareTest extends TestCase
             ->willReturn($message->reveal())
             ->shouldBeCalled();
 
-        $responseStrategy = $this->prophesize(ResponseStrategy::class);
-        $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
-
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_ACCEPTED)->shouldBeCalled();
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
+
+        $delegate = $this->prophesize(DelegateInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -242,7 +254,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
     }
 
     /**
@@ -273,14 +285,15 @@ class MessageMiddlewareTest extends TestCase
             ->willReturn($message->reveal())
             ->shouldBeCalled();
 
-        $responseStrategy = $this->prophesize(ResponseStrategy::class);
-        $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
-
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Middleware::STATUS_CODE_ACCEPTED)->shouldBeCalled();
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
+
+        $delegate = $this->prophesize(DelegateInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -289,7 +302,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
     }
 
     /**
@@ -322,14 +335,15 @@ class MessageMiddlewareTest extends TestCase
             ->willReturn($message->reveal())
             ->shouldBeCalled();
 
-        $responseStrategy = $this->prophesize(ResponseStrategy::class);
-        $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldBeCalled();
-
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
-        $response->withStatus(Argument::type('integer'))->shouldNotBeCalled();
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->fromPromise(Argument::type(Promise::class))->willReturn($response);
+
+        $delegate = $this->prophesize(DelegateInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -338,7 +352,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $middleware($request->reveal(), $response->reveal(), Helper::callableShouldNotBeCalledWithException($this));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
     }
 
     /**

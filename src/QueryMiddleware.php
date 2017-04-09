@@ -12,11 +12,14 @@ declare(strict_types=1);
 
 namespace Prooph\Psr7Middleware;
 
+use Fig\Http\Message\RequestMethodInterface;
+use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\QueryBus;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -27,14 +30,14 @@ use Psr\Http\Message\ServerRequestInterface;
  * which needs to be resolved by the finder. We use promises to allow finders to handle queries asynchronous for
  * example using curl_multi_exec.
  */
-final class QueryMiddleware implements Middleware
+final class QueryMiddleware implements MiddlewareInterface
 {
     /**
      * Identifier to execute specific query
      *
      * @var string
      */
-    const NAME_ATTRIBUTE = 'prooph_query_name';
+    public const NAME_ATTRIBUTE = 'prooph_query_name';
 
     /**
      * Dispatches query
@@ -76,23 +79,19 @@ final class QueryMiddleware implements Middleware
         $this->metadataGatherer = $metadataGatherer;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
     {
         $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
 
         if (null === $queryName) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    sprintf('Query name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
-                    Middleware::STATUS_CODE_BAD_REQUEST
-                )
+            throw new RuntimeException(
+                sprintf('Query name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
+                StatusCodeInterface::STATUS_BAD_REQUEST
             );
         }
         $payload = $request->getQueryParams();
 
-        if ($request->getMethod() === 'POST') {
+        if ($request->getMethod() === RequestMethodInterface::METHOD_POST) {
             $payload['data'] = $request->getParsedBody();
         }
 
@@ -106,14 +105,10 @@ final class QueryMiddleware implements Middleware
                 $this->queryBus->dispatch($query)
             );
         } catch (\Throwable $e) {
-            return $next(
-                $request,
-                $response,
-                new RuntimeException(
-                    sprintf('An error occurred during dispatching of query "%s"', $queryName),
-                    Middleware::STATUS_CODE_INTERNAL_SERVER_ERROR,
-                    $e
-                )
+            throw new RuntimeException(
+                sprintf('An error occurred during dispatching of query "%s"', $queryName),
+                StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
     }

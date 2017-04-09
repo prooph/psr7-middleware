@@ -2,7 +2,21 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 0.4.0 TBA
+## 0.5.0 TBA
+
+### Added
+
+* PSR-15 support
+
+### Deprecated
+
+* Nothing
+
+### Removed
+
+* Nothing
+
+## 0.4.0 (2017-01-12)
 
 ### Added
 
@@ -17,7 +31,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 * Nothing
 
-## 0.3.0
+## 0.3.0 (2016-05-08)
 
 ### Added
 
