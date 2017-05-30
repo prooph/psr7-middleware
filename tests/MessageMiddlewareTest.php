@@ -380,11 +380,13 @@ class MessageMiddlewareTest extends TestCase
         $message = $this->prophesize(Message::class);
         $message->messageType()->shouldBeCalled()->willReturn(Message::TYPE_COMMAND);
 
+        $payloadWithUpdatedMessageName = array_merge($payload, ['message_name' => 'name_from_request']);
+
         $messageFactory = $this->prophesize(MessageFactory::class);
         $messageFactory
             ->createMessageFromArray(
                 'name_from_request',
-                $payload
+                $payloadWithUpdatedMessageName
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
