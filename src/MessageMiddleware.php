@@ -93,9 +93,11 @@ final class MessageMiddleware implements MiddlewareInterface
                 $messageName = $payload['message_name'];
             }
 
+            $messageName = $request->getAttribute('message_name', $messageName);
+
             MessageDataAssertion::assert($payload);
 
-            $message = $this->messageFactory->createMessageFromArray($payload['message_name'], $payload);
+            $message = $this->messageFactory->createMessageFromArray($messageName, $payload);
 
             switch ($message->messageType()) {
                 case Message::TYPE_COMMAND:
