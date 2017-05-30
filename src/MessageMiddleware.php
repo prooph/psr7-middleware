@@ -24,6 +24,7 @@ use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 use Psr\Http\Message\ServerRequestInterface;
+use Ramsey\Uuid\Uuid;
 
 /**
  * One middleware for all message types (event, command and query)
@@ -96,6 +97,18 @@ final class MessageMiddleware implements MiddlewareInterface
             $messageName = $request->getAttribute('message_name', $messageName);
 
             $payload['message_name'] = $messageName;
+
+            if (! isset($payload['uuid'])) {
+                $payload['uuid'] = Uuid::uuid4();
+            }
+
+            if (! isset($payload['created_at'])) {
+                $payload['created_at'] = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+            }
+
+            if (! isset($payload['metadata'])) {
+                $payload['metadata'] = [];
+            }
 
             MessageDataAssertion::assert($payload);
 

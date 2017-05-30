@@ -61,7 +61,7 @@ class MessageMiddlewareTest extends TestCase
         $delegate = $this->prophesize(DelegateInterface::class);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('MessageData must contain a key uuid');
+        $this->expectExceptionMessage('MessageData must contain a key payload');
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
