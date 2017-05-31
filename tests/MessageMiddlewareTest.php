@@ -56,6 +56,7 @@ class MessageMiddlewareTest extends TestCase
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn(['message_name' => 'test'])->shouldBeCalled();
+        $request->getAttribute('message_name', 'test')->willReturn('test')->shouldBeCalled();
 
         $delegate = $this->prophesize(DelegateInterface::class);
 
@@ -107,6 +108,7 @@ class MessageMiddlewareTest extends TestCase
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute('message_name', 'unknown')->willReturn('unknown')->shouldBeCalled();
 
         $delegate = $this->prophesize(DelegateInterface::class);
 
@@ -192,6 +194,7 @@ class MessageMiddlewareTest extends TestCase
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute('message_name', 'name.' . $messageType)->willReturn('name.' . $messageType)->shouldBeCalled();
 
         $delegate = $this->prophesize(DelegateInterface::class);
 
@@ -239,6 +242,7 @@ class MessageMiddlewareTest extends TestCase
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute('message_name', 'command')->willReturn('command')->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
 
@@ -287,6 +291,7 @@ class MessageMiddlewareTest extends TestCase
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute('message_name', 'event')->willReturn('event')->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
 
@@ -337,11 +342,63 @@ class MessageMiddlewareTest extends TestCase
 
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute('message_name', 'query')->willReturn('query')->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
 
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->fromPromise(Argument::type(Promise::class))->willReturn($response);
+
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $middleware = new MessageMiddleware(
+            $commandBus->reveal(),
+            $queryBus->reveal(),
+            $eventBus->reveal(),
+            $messageFactory->reveal(),
+            $responseStrategy->reveal()
+        );
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+    }
+
+    /**
+     * @test
+     */
+    public function it_prefers_message_name_from_request_if_set(): void
+    {
+        $payload = $this->getPayload('command');
+
+        $commandBus = $this->prophesize(CommandBus::class);
+        $commandBus->dispatch(Argument::type(Message::class))->shouldBeCalled();
+
+        $queryBus = $this->prophesize(QueryBus::class);
+        $queryBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
+
+        $eventBus = $this->prophesize(EventBus::class);
+        $eventBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
+
+        $message = $this->prophesize(Message::class);
+        $message->messageType()->shouldBeCalled()->willReturn(Message::TYPE_COMMAND);
+
+        $payloadWithUpdatedMessageName = array_merge($payload, ['message_name' => 'name_from_request']);
+
+        $messageFactory = $this->prophesize(MessageFactory::class);
+        $messageFactory
+            ->createMessageFromArray(
+                'name_from_request',
+                $payloadWithUpdatedMessageName
+            )
+            ->willReturn($message->reveal())
+            ->shouldBeCalled();
+
+        $request = $this->prophesize(ServerRequestInterface::class);
+        $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute('message_name', 'command')->willReturn('name_from_request')->shouldBeCalled();
+
+        $response = $this->prophesize(ResponseInterface::class);
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
 
         $delegate = $this->prophesize(DelegateInterface::class);
 
