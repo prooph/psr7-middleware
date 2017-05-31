@@ -61,7 +61,7 @@ class MessageMiddlewareTest extends TestCase
         $delegate = $this->prophesize(DelegateInterface::class);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('MessageData must contain a key uuid');
+        $this->expectExceptionMessage('MessageData must contain a key payload');
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -394,6 +394,63 @@ class MessageMiddlewareTest extends TestCase
         $request = $this->prophesize(ServerRequestInterface::class);
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute('message_name', 'command')->willReturn('name_from_request')->shouldBeCalled();
+
+        $response = $this->prophesize(ResponseInterface::class);
+
+        $responseStrategy = $this->prophesize(ResponseStrategy::class);
+        $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
+
+        $delegate = $this->prophesize(DelegateInterface::class);
+
+        $middleware = new MessageMiddleware(
+            $commandBus->reveal(),
+            $queryBus->reveal(),
+            $eventBus->reveal(),
+            $messageFactory->reveal(),
+            $responseStrategy->reveal()
+        );
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+    }
+
+    /**
+     * @test
+     */
+    public function it_applies_defaults_if_only_message_name_and_payload_is_given()
+    {
+        $payload = $this->getPayload('command');
+
+        unset($payload['uuid'], $payload['metadata'], $payload['created_at']);
+
+        $commandBus = $this->prophesize(CommandBus::class);
+        $commandBus->dispatch(Argument::type(Message::class))->shouldBeCalled();
+
+        $queryBus = $this->prophesize(QueryBus::class);
+        $queryBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
+
+        $eventBus = $this->prophesize(EventBus::class);
+        $eventBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
+
+        $message = $this->prophesize(Message::class);
+        $message->messageType()->shouldBeCalled()->willReturn(Message::TYPE_COMMAND);
+
+        $messageFactory = $this->prophesize(MessageFactory::class);
+        $messageFactory
+            ->createMessageFromArray(
+                $payload['message_name'],
+                Argument::allOf(
+                    Argument::withKey('uuid'),
+                    Argument::withKey('message_name'),
+                    Argument::withKey('payload'),
+                    Argument::withKey('created_at'),
+                    Argument::withKey('metadata')
+                )
+            )
+            ->willReturn($message->reveal())
+            ->shouldBeCalled();
+
+        $request = $this->prophesize(ServerRequestInterface::class);
+        $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
+        $request->getAttribute('message_name', 'command')->willReturn('command')->shouldBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
 
