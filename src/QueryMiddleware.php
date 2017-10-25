@@ -14,13 +14,13 @@ namespace Prooph\Psr7Middleware;
 
 use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
-use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
-use Webimpress\HttpMiddlewareCompatibility\MiddlewareInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\QueryBus;
 use Psr\Http\Message\ServerRequestInterface;
+use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
+use Webimpress\HttpMiddlewareCompatibility\MiddlewareInterface;
 
 /**
  * Query messages describe available information that can be fetched from your (read) model.

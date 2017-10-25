@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace ProophTest\Psr7Middleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -27,6 +26,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Promise\Promise;
+use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
 
 /**
  * Test integrity of \Prooph\Psr7Middleware\MessageMiddleware
