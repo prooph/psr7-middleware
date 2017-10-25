@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace ProophTest\Psr7Middleware;
 
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -50,14 +50,14 @@ class QueryMiddlewareTest extends TestCase
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->shouldNotBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(sprintf('Query name attribute ("%s") was not found in request.', QueryMiddleware::NAME_ATTRIBUTE));
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
-        $middleware->process($request->reveal(), $delegate->reveal());
+        $middleware->process($request->reveal(), $handler->reveal());
     }
 
     /**
@@ -95,14 +95,14 @@ class QueryMiddlewareTest extends TestCase
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('An error occurred during dispatching of query "stdClass"');
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
-        $middleware->process($request->reveal(), $delegate->reveal());
+        $middleware->process($request->reveal(), $handler->reveal());
     }
 
     /**
@@ -142,11 +142,11 @@ class QueryMiddlewareTest extends TestCase
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request)->shouldBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 
     /**
@@ -188,10 +188,10 @@ class QueryMiddlewareTest extends TestCase
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request)->shouldBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 }

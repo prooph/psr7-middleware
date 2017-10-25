@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace ProophTest\Psr7Middleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -50,14 +50,14 @@ class CommandMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(sprintf('Command name attribute ("%s") was not found in request.', CommandMiddleware::NAME_ATTRIBUTE));
 
         $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
 
-        $middleware->process($request->reveal(), $delegate->reveal());
+        $middleware->process($request->reveal(), $handler->reveal());
     }
 
     /**
@@ -92,7 +92,7 @@ class CommandMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionCode(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
@@ -100,7 +100,7 @@ class CommandMiddlewareTest extends TestCase
 
         $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
 
-        $middleware->process($request->reveal(), $delegate->reveal());
+        $middleware->process($request->reveal(), $handler->reveal());
     }
 
     /**
@@ -137,9 +137,9 @@ class CommandMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 }
