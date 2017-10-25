@@ -14,8 +14,8 @@ namespace Prooph\Psr7Middleware;
 
 use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
+use Webimpress\HttpMiddlewareCompatibility\MiddlewareInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\Psr7Middleware\Exception\RuntimeException;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
@@ -79,7 +79,7 @@ final class QueryMiddleware implements MiddlewareInterface
         $this->metadataGatherer = $metadataGatherer;
     }
 
-    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, HandlerInterface $handler)
     {
         $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
 
