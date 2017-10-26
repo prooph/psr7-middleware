@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace ProophTest\Psr7Middleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -27,6 +26,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Promise\Promise;
+use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
 
 /**
  * Test integrity of \Prooph\Psr7Middleware\MessageMiddleware
@@ -58,7 +58,7 @@ class MessageMiddlewareTest extends TestCase
         $request->getParsedBody()->willReturn(['message_name' => 'test'])->shouldBeCalled();
         $request->getAttribute('message_name', 'test')->willReturn('test')->shouldBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('MessageData must contain a key payload');
@@ -71,7 +71,7 @@ class MessageMiddlewareTest extends TestCase
             $responseStrategy->reveal()
         );
 
-        $middleware->process($request->reveal(), $delegate->reveal());
+        $middleware->process($request->reveal(), $handler->reveal());
     }
 
     /**
@@ -110,7 +110,7 @@ class MessageMiddlewareTest extends TestCase
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute('message_name', 'unknown')->willReturn('unknown')->shouldBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('An error occurred during dispatching of message "unknown"');
@@ -123,7 +123,7 @@ class MessageMiddlewareTest extends TestCase
             $responseStrategy->reveal()
         );
 
-        $middleware->process($request->reveal(), $delegate->reveal());
+        $middleware->process($request->reveal(), $handler->reveal());
     }
 
     public function providerMessageTypes(): array
@@ -196,7 +196,7 @@ class MessageMiddlewareTest extends TestCase
         $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute('message_name', 'name.' . $messageType)->willReturn('name.' . $messageType)->shouldBeCalled();
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionCode(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
@@ -209,7 +209,7 @@ class MessageMiddlewareTest extends TestCase
             $responseStrategy->reveal()
         );
 
-        $middleware->process($request->reveal(), $delegate->reveal());
+        $middleware->process($request->reveal(), $handler->reveal());
     }
 
     /**
@@ -249,7 +249,7 @@ class MessageMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -258,7 +258,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 
     /**
@@ -298,7 +298,7 @@ class MessageMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -307,7 +307,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 
     /**
@@ -349,7 +349,7 @@ class MessageMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->fromPromise(Argument::type(Promise::class))->willReturn($response);
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -358,7 +358,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 
     /**
@@ -400,7 +400,7 @@ class MessageMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -409,7 +409,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 
     /**
@@ -457,7 +457,7 @@ class MessageMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
 
-        $delegate = $this->prophesize(DelegateInterface::class);
+        $handler = $this->prophesize(HandlerInterface::class);
 
         $middleware = new MessageMiddleware(
             $commandBus->reveal(),
@@ -466,7 +466,7 @@ class MessageMiddlewareTest extends TestCase
             $messageFactory->reveal(),
             $responseStrategy->reveal()
         );
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $delegate->reveal()));
+        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
     }
 
     /**

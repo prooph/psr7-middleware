@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace Prooph\Psr7Middleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageDataAssertion;
 use Prooph\Common\Messaging\MessageFactory;
@@ -25,6 +23,8 @@ use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
+use Webimpress\HttpMiddlewareCompatibility\MiddlewareInterface;
 
 /**
  * One middleware for all message types (event, command and query)
@@ -82,7 +82,7 @@ final class MessageMiddleware implements MiddlewareInterface
         $this->responseStrategy = $responseStrategy;
     }
 
-    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
+    public function process(ServerRequestInterface $request, HandlerInterface $handler)
     {
         $payload = null;
         $messageName = 'UNKNOWN';
