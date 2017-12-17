@@ -85,6 +85,17 @@ class CommandMiddlewareFactoryTest extends TestCase
     /**
      * @test
      */
+    public function it_creates_command_middleware_incl_metadata_gatherer(): void
+    {
+        $container = $this->getValidConfiguredContainer('other_config_id', new StubMetadataGatherer());
+
+        $factory = [CommandMiddlewareFactory::class, 'other_config_id'];
+        self::assertInstanceOf(CommandMiddleware::class, $factory($container->reveal()));
+    }
+
+    /**
+     * @test
+     */
     public function it_throws_invalid_argument_exception_without_container_on_static_call(): void
     {
         $this->expectException(InvalidArgumentException::class);
