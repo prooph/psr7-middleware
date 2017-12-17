@@ -1,15 +1,44 @@
 # Change Log
 
-## [v0.5](https://github.com/prooph/psr7-middleware/tree/v0.5)
+## [v0.8](https://github.com/prooph/psr7-middleware/tree/v0.8)
 
+[Full Changelog](https://github.com/prooph/psr7-middleware/compare/v0.7...v0.8)
+
+**Implemented enhancements:**
+
+- add tests [\#33](https://github.com/prooph/psr7-middleware/pull/33) ([prolic](https://github.com/prolic))
+- test php 7.2 on travis [\#32](https://github.com/prooph/psr7-middleware/pull/32) ([prolic](https://github.com/prolic))
+
+**Closed issues:**
+
+- Interop-Config classed as optional dependency but is required. [\#30](https://github.com/prooph/psr7-middleware/issues/30)
+- http-middleware-compatibility [\#27](https://github.com/prooph/psr7-middleware/issues/27)
+
+## [v0.7](https://github.com/prooph/psr7-middleware/tree/v0.7) (2017-10-26)
+[Full Changelog](https://github.com/prooph/psr7-middleware/compare/v0.6...v0.7)
+
+**Implemented enhancements:**
+
+- Improvement/psr15 compatibility [\#28](https://github.com/prooph/psr7-middleware/pull/28) ([basz](https://github.com/basz))
+
+## [v0.6](https://github.com/prooph/psr7-middleware/tree/v0.6) (2017-05-31)
+[Full Changelog](https://github.com/prooph/psr7-middleware/compare/v0.5...v0.6)
+
+**Implemented enhancements:**
+
+- Use http-interop for middlewares PSR-15 [\#21](https://github.com/prooph/psr7-middleware/issues/21)
+- Get message name from request attribute [\#25](https://github.com/prooph/psr7-middleware/pull/25) ([codeliner](https://github.com/codeliner))
+
+**Merged pull requests:**
+
+- Message defaults [\#26](https://github.com/prooph/psr7-middleware/pull/26) ([codeliner](https://github.com/codeliner))
+
+## [v0.5](https://github.com/prooph/psr7-middleware/tree/v0.5) (2017-04-11)
 [Full Changelog](https://github.com/prooph/psr7-middleware/compare/v0.4...v0.5)
 
 **Implemented enhancements:**
 
 - Implement PSR-15 [\#24](https://github.com/prooph/psr7-middleware/pull/24) ([bgaleotti](https://github.com/bgaleotti))
-- Update to phpunit 6
-- Update to prooph/service-bus 6
-- Require PHP 7.1
 
 **Closed issues:**
 
