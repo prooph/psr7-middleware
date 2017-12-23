@@ -36,6 +36,7 @@
     "psr-15",
     "psr15"
   ],
+  "abandoned": true,
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
@@ -60,6 +61,7 @@
     "http-interop/http-middleware": "^0.5.0"
   },
   "suggest": {
+    "prooph/http-middleware": "prooph/psr7-middleware has been abandoned, use prooph/http-middlware instead",
     "psr/container": "^1.0 for usage of provided factories",
     "sandrokeil/interop-config": "^2.0 for usage of provided factories"
   },
