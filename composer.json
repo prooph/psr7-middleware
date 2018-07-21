@@ -36,7 +36,7 @@
     "psr-15",
     "psr15"
   ],
-  "abandoned": true,
+  "abandoned": "prooph/http-middleware",
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
