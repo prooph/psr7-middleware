@@ -1,8 +1,9 @@
 <?php
+
 /**
  * This file is part of prooph/psr7-middleware.
- * (c) 2016-2017 prooph software GmbH <contact@prooph.de>
- * (c) 2016-2017 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2018 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -380,7 +381,7 @@ class MessageMiddlewareTest extends TestCase
         $message = $this->prophesize(Message::class);
         $message->messageType()->shouldBeCalled()->willReturn(Message::TYPE_COMMAND);
 
-        $payloadWithUpdatedMessageName = array_merge($payload, ['message_name' => 'name_from_request']);
+        $payloadWithUpdatedMessageName = \array_merge($payload, ['message_name' => 'name_from_request']);
 
         $messageFactory = $this->prophesize(MessageFactory::class);
         $messageFactory

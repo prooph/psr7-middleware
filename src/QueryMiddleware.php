@@ -1,8 +1,9 @@
 <?php
+
 /**
  * This file is part of prooph/psr7-middleware.
- * (c) 2016-2017 prooph software GmbH <contact@prooph.de>
- * (c) 2016-2017 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
+ * (c) 2016-2018 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -85,7 +86,7 @@ final class QueryMiddleware implements MiddlewareInterface
 
         if (null === $queryName) {
             throw new RuntimeException(
-                sprintf('Query name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
+                \sprintf('Query name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
                 StatusCodeInterface::STATUS_BAD_REQUEST
             );
         }
@@ -106,7 +107,7 @@ final class QueryMiddleware implements MiddlewareInterface
             );
         } catch (\Throwable $e) {
             throw new RuntimeException(
-                sprintf('An error occurred during dispatching of query "%s"', $queryName),
+                \sprintf('An error occurred during dispatching of query "%s"', $queryName),
                 StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                 $e
             );
